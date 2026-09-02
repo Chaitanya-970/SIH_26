@@ -26,5 +26,9 @@ data/chroma/*
 .idea/
 .DS_Store
 
+# RFCs (internal working documents)
+docs/rfcs/
+reviews/
+
 # Freebuff
 .freebuff/

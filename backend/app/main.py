@@ -1,7 +1,23 @@
+from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-app = FastAPI(title="Citadel Workspace API")
+from app.config import Settings, ModelRegistry
+from app.services.ollama import OllamaClient
+
+settings = Settings()
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Startup
+    app.state.settings = settings
+    app.state.registry = ModelRegistry()
+    app.state.ollama = OllamaClient(settings.ollama_base_url)
+    yield
+    # Shutdown
+    await app.state.ollama.close()
+
+app = FastAPI(title="Citadel Workspace API", lifespan=lifespan)
 
 # Configure CORS for local development
 app.add_middleware(
