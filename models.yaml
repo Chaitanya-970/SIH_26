@@ -1,0 +1,29 @@
+models:
+  vision:
+    name: "Vision Analyst"
+    ollama_tag: "moondream"
+    capability: "vision"
+    routing_rule: "has_image_attachment"
+    num_ctx: 4096
+
+  coder:
+    name: "Code Sandbox"
+    ollama_tag: "qwen2.5-coder:3b"
+    capability: "code"
+    routing_rule: "keyword_match"
+    keywords: ["def", "python", "calculate", "script", "loop", "function",
+               "class", "import", "debug", "error", "code", "program"]
+    num_ctx: 4096
+
+  document:
+    name: "Document Drafter"
+    ollama_tag: "phi3.5:3.8b"
+    capability: "text"
+    routing_rule: "default"
+    num_ctx: 4096
+
+  embedding:
+    name: "Embedder"
+    ollama_tag: "nomic-embed-text"
+    capability: "embedding"
+    num_ctx: 8192

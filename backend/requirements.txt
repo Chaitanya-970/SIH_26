@@ -1,0 +1,13 @@
+fastapi
+uvicorn
+httpx
+chromadb
+pypdf2
+python-docx
+openpyxl
+pandas
+python-pptx
+aiofiles
+pydantic
+pydantic-settings
+python-multipart
