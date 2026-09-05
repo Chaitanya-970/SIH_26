@@ -4,6 +4,10 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import Settings, ModelRegistry
 from app.services.ollama import OllamaClient
+from app.config import Settings, ModelRegistry
+from app.services.ollama import OllamaClient
+from app.api.documents import router as documents_router
+from app.api.knowledge_base import router as kb_router
 
 settings = Settings()
 
@@ -38,3 +42,5 @@ async def health_check():
 # app.include_router(files.router, prefix="/api")
 # app.include_router(network.router, prefix="/api")
 # app.include_router(models.router, prefix="/api")
+app.include_router(documents_router)
+app.include_router(kb_router)

@@ -1,0 +1,32 @@
+================================================================================
+MANGALORE REFINERY AND PETROCHEMICALS LIMITED (MRPL)
+STANDARD OPERATING PROCEDURE: SOP-42 (REV 04)
+TITLE: EMERGENCY MAINTENANCE AND APPROVAL CHAIN FOR ROTATING EQUIPMENT
+================================================================================
+
+1. PURPOSE & SCOPE
+This document defines the mandatory protocol for handling critical parameter breaches in rotating equipment (Pumps, Compressors, Turbines) across all operational refinery units.
+
+2. VIBRATION AND TEMPERATURE THRESHOLDS
+2.1 Vibration Severity (ISO 10816 Class III/IV Industrial Pumps):
+    - Zone A/B (Normal): < 4.5 mm/s RMS.
+    - Zone C (Alert): 4.5 mm/s to 7.1 mm/s RMS. Maintenance team must perform spectrum analysis within 24 hours.
+    - Zone D (Critical/Trip): > 7.1 mm/s RMS. Immediate trip approval required from Shift In-Charge.
+
+2.2 Bearing Temperature Thresholds:
+    - Normal Range: 50.0°C to 75.0°C.
+    - Alarm Threshold: 85.0°C.
+    - Emergency Shutdown Threshold: 90.0°C. If drive end bearing exceeds 90.0°C for > 15 minutes, the equipment must be isolated immediately.
+
+3. APPROVAL CHAIN & DELIVERABLES
+For emergency maintenance requiring expenditure or spare parts allocation exceeding INR 50,000:
+1. Field Inspector generates an Emergency Inspection Report.
+2. Maintenance Engineer drafts a formal Approval Note containing:
+   a) Equipment Tag & Location
+   b) Root Cause Analysis (RCA) summary
+   c) Estimated Downtime and Cost
+   d) Signature Block for Chief Engineer approval.
+3. Chief Engineer (Chaitanya) holds sole signatory authority for fast-track spares release under Emergency Procurement Scheme (EPS-2024).
+
+4. LUBE OIL FLUSHING SPECIFICATIONS
+Flush system using ISO VG 68 oil at 60°C for a minimum of 4 hours until particle counts meet ISO Cleanliness Code 16/14/11.
