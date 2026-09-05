@@ -130,7 +130,7 @@ export default function Workspace({
       case 'token':
         setQueryData((prev) => {
           if (!prev) return prev;
-          const tokenStr = typeof data === 'string' ? data : (data.token || '');
+          const tokenStr = typeof data === 'string' ? data : (data.token || data.text || '');
           return { ...prev, answer: prev.answer + tokenStr };
         });
         break;

@@ -56,7 +56,8 @@ export async function fetchKnowledgeBase() {
   try {
     const res = await fetch(`${BASE_URL}/api/knowledge-base`);
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    return await res.json();
+    const data = await res.json();
+    return Array.isArray(data) ? data : (data?.documents || []);
   } catch (err) {
     console.warn('[API] /api/knowledge-base fallback to local store:', err.message);
     return localKbDocuments;
@@ -106,7 +107,7 @@ export async function uploadDocument(file) {
  */
 export async function deleteDocument(docId) {
   try {
-    const res = await fetch(`${BASE_URL}/api/knowledge-base/${docId}`, {
+    const res = await fetch(`${BASE_URL}/api/documents/${docId}`, {
       method: 'DELETE'
     });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);

@@ -15,12 +15,12 @@ venv/
 env/
 
 # Data & Sessions (Do not track actual data, only the folder structure)
-data/kb/*
-!data/kb/.gitkeep
-data/sessions/*
-!data/sessions/.gitkeep
-data/chroma/*
-!data/chroma/.gitkeep
+backend/data/kb/*
+!backend/data/kb/.gitkeep
+backend/data/sessions/*
+!backend/data/sessions/.gitkeep
+backend/data/chroma/*
+!backend/data/chroma/.gitkeep
 
 # IDEs
 .vscode/
