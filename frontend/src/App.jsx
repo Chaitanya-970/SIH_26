@@ -1,122 +1,110 @@
-import { useState } from 'react'
-import heroImg from './assets/hero.png'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import './App.css'
+import React, { useState } from 'react';
+import TopNav from './components/TopNav';
+import { OPERATORS } from './components/OperatorDropdown';
+import Dashboard from './pages/Dashboard';
+import Workspace from './pages/Workspace';
+import KnowledgeBase from './pages/KnowledgeBase';
 
-function App() {
-  const [count, setCount] = useState(0)
+/**
+ * App - Root Application Shell
+ * Manages 3 primary engineering pages: Dashboard (launchpad), Workspace (flagship 3-pane),
+ * and Knowledge Base (PageIndex repository), plus Air-Gap persistent telemetry and operator persona state.
+ */
+export default function App() {
+  const [activePage, setActivePage] = useState('dashboard'); // 'dashboard' | 'workspace' | 'kb'
+  const [activeWorkItem, setActiveWorkItem] = useState(null);
+  const [currentUser, setCurrentUser] = useState(OPERATORS[0]);
+  const [sessionId] = useState(() => `session-${Math.random().toString(36).substring(2, 9)}`);
+
+  const handleNewQuery = () => {
+    setActiveWorkItem(null);
+    setActivePage('workspace');
+  };
+
+  const handleOpenWorkspace = () => {
+    setActivePage('workspace');
+  };
+
+  const handleOpenKnowledge = () => {
+    setActivePage('kb');
+  };
+
+  const handleSelectRecentWork = (item) => {
+    setActiveWorkItem(item);
+    setActivePage('workspace');
+  };
+
+  const handleOpenDocumentFromKB = (doc) => {
+    setActiveWorkItem({
+      query: `Reviewing technical document: ${doc.name}`,
+      title: doc.name,
+      documentName: doc.name,
+      page: 1,
+      meta: 'Document inspection',
+      sources: [{ documentName: doc.name, page: 1, section: 'Overview' }]
+    });
+    setActivePage('workspace');
+  };
+
+  const handleAskAboutDocumentFromKB = (doc) => {
+    setActiveWorkItem({
+      query: `Summarize key engineering operating limits, inspection findings, and standards from ${doc.name}.`,
+      title: doc.name,
+      documentName: doc.name,
+      page: 1,
+      meta: 'PageIndex query launch',
+      sources: [{ documentName: doc.name, page: 1, section: 'Section 1' }]
+    });
+    setActivePage('workspace');
+  };
 
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
-        <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.jsx</code> and save to test <code>HMR</code>
-          </p>
-        </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
+    <div style={{
+      width: '100vw',
+      height: '100vh',
+      display: 'flex',
+      flexDirection: 'column',
+      background: 'var(--bg-dark)',
+      overflow: 'hidden'
+    }}>
+      {/* Persistent Sovereign Top Navigation */}
+      <TopNav
+        activePage={activePage}
+        onNavigate={setActivePage}
+        user={currentUser}
+        onSelectOperator={setCurrentUser}
+      />
 
-      <div className="ticks"></div>
+      {/* Main Page Routing with Silky Page Transition */}
+      <main style={{ flex: 1, overflow: 'hidden', position: 'relative' }}>
+        <div key={activePage} className="page-enter" style={{ width: '100%', height: '100%' }}>
+          {activePage === 'dashboard' && (
+            <Dashboard
+              user={currentUser}
+              onNavigate={setActivePage}
+              onNewQuery={handleNewQuery}
+              onOpenWorkspace={handleOpenWorkspace}
+              onOpenKnowledge={handleOpenKnowledge}
+              onSelectRecentWork={handleSelectRecentWork}
+            />
+          )}
 
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
-        </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
+          {activePage === 'workspace' && (
+            <Workspace
+              sessionId={sessionId}
+              initialWorkItem={activeWorkItem}
+              onOpenKnowledgeBaseUpload={() => setActivePage('kb')}
+            />
+          )}
 
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
-  )
+          {activePage === 'kb' && (
+            <KnowledgeBase
+              onOpenDocument={handleOpenDocumentFromKB}
+              onAskAboutDocument={handleAskAboutDocumentFromKB}
+            />
+          )}
+        </div>
+      </main>
+    </div>
+  );
 }
-
-export default App
