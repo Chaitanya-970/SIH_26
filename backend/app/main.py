@@ -4,6 +4,8 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import Settings, ModelRegistry
 from app.services.ollama import OllamaClient
+from app.agent.router import ModelRouter
+from app.routers import models as models_router
 
 settings = Settings()
 
@@ -13,6 +15,7 @@ async def lifespan(app: FastAPI):
     app.state.settings = settings
     app.state.registry = ModelRegistry()
     app.state.ollama = OllamaClient(settings.ollama_base_url)
+    app.state.model_router = ModelRouter(app.state.registry)
     yield
     # Shutdown
     await app.state.ollama.close()
@@ -37,4 +40,4 @@ async def health_check():
 # app.include_router(knowledge_base.router, prefix="/api")
 # app.include_router(files.router, prefix="/api")
 # app.include_router(network.router, prefix="/api")
-# app.include_router(models.router, prefix="/api")
+app.include_router(models_router.router)
