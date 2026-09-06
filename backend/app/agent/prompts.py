@@ -28,6 +28,12 @@ def build_system_prompt(context: str = "") -> str:
 
 {TOOL_CALL_FORMAT}
 
+IMPORTANT WORKFLOW:
+- ALWAYS start by calling search_knowledge_base ONCE to find relevant documents. NEVER guess or invent file paths.
+- After receiving search results, write your final answer using the retrieved data. Do NOT search again for the same topic.
+- Only call a tool again if the user explicitly asks for a deliverable (write_word_document, write_spreadsheet) or code execution (execute_code).
+- Keep your answer concise and grounded in the search results.
+
 Think step by step. Explain your reasoning before each tool call so the user can follow your logic."""
 
     if context:

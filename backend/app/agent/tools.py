@@ -110,10 +110,10 @@ async def search_knowledge_base(args: dict[str, Any], context: ToolContext) -> T
         # Embed the query
         query_embedding = await context.ollama.embed(embed_model.ollama_tag, query)
 
-        # Query ChromaDB
+        # Query ChromaDB — collection name must match chroma.py's CHROMA_COLLECTION_NAME
         client = chromadb.PersistentClient(path=context.settings.chroma_dir)
         collection = client.get_or_create_collection(
-            name="knowledge_base",
+            name="citadel_kb",
             metadata={"hnsw:space": "cosine"}
         )
 
@@ -230,8 +230,13 @@ def _sync_write_word_document(title: str, body: str, sig_block: str, exports_dir
 
 async def write_word_document(args: dict[str, Any], context: ToolContext) -> ToolResult:
     content = args.get("content")
+    # Small models often send {title, body} directly instead of {content: {title, body}}
     if not isinstance(content, dict):
-        return ToolResult(tool="write_word_document", result="Error: 'content' must be a dict with title/body keys", success=False)
+        # Try treating the entire args dict as the content
+        if "title" in args or "body" in args:
+            content = args
+        else:
+            return ToolResult(tool="write_word_document", result="Error: 'content' must be a dict with title/body keys", success=False)
         
     title = content.get("title", "Untitled Document")
     body = content.get("body", "")

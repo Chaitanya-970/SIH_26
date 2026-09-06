@@ -11,7 +11,7 @@ class Settings(BaseSettings):
     kb_dir: str = "./data/kb"
     chroma_dir: str = "./data/chroma"
     max_file_size_mb: int = 50
-    max_agent_steps: int = 8
+    max_agent_steps: int = 4
     sandbox_timeout_seconds: int = 15
     debug: bool = True
 
