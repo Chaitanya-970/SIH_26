@@ -2,7 +2,7 @@ fastapi
 uvicorn
 httpx
 chromadb
-pypdf2
+pypdf
 python-docx
 openpyxl
 pandas
@@ -14,6 +14,5 @@ python-multipart
 pyyaml
 pytest
 pytest-asyncio
-mypy
-
+types-PyYAML
 mypy==1.15.0

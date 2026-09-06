@@ -2,6 +2,11 @@ import json
 import re
 from app.models.schemas import ToolCall
 
+VALID_TOOLS = {
+    "execute_code", "search_knowledge_base", "read_document",
+    "write_word_document", "write_spreadsheet", "write_presentation"
+}
+
 def find_json_blocks(text: str) -> list[str]:
     blocks = []
     stack = 0
@@ -63,11 +68,6 @@ def parse_tool_call(text: str) -> ToolCall | None:
     """
     blocks = find_json_blocks(text)
     
-    valid_tools = {
-        "execute_code", "search_knowledge_base", "read_document",
-        "write_word_document", "write_spreadsheet", "write_presentation"
-    }
-    
     for block in blocks:
         try:
             data = json.loads(block)
@@ -78,7 +78,7 @@ def parse_tool_call(text: str) -> ToolCall | None:
             # Check if it has the shape of a tool call
             if "tool" in data and "args" in data:
                 tool_name = data["tool"]
-                if tool_name in valid_tools:
+                if tool_name in VALID_TOOLS:
                     return ToolCall(tool=tool_name, args=data["args"])
                     
     return None
@@ -90,11 +90,6 @@ def extract_text_before_tool_call(text: str) -> str:
     """
     blocks = find_json_blocks(text)
     
-    valid_tools = {
-        "execute_code", "search_knowledge_base", "read_document",
-        "write_word_document", "write_spreadsheet", "write_presentation"
-    }
-    
     for block in blocks:
         try:
             data = json.loads(block)
@@ -102,7 +97,7 @@ def extract_text_before_tool_call(text: str) -> str:
             data = _attempt_json_repair(block)
             
         if data and isinstance(data, dict) and "tool" in data and "args" in data:
-            if data["tool"] in valid_tools:
+            if data["tool"] in VALID_TOOLS:
                 # Found the valid tool call block
                 idx = text.find(block)
                 if idx != -1:

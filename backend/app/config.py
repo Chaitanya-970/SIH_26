@@ -47,7 +47,7 @@ class ModelRegistry:
             raise ValueError("models.yaml must contain a 'models' key")
 
         self.models: Dict[str, ModelConfig] = {}
-        seen = {}
+        seen: Dict[str, str] = {}
         for key, val in raw["models"].items():
             model = ModelConfig(**val)
             if model.capability in seen and model.capability != "embedding":
