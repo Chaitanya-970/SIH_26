@@ -14,7 +14,15 @@ export default function App() {
   const [activePage, setActivePage] = useState('dashboard'); // 'dashboard' | 'workspace' | 'kb'
   const [activeWorkItem, setActiveWorkItem] = useState(null);
   const [currentUser, setCurrentUser] = useState(OPERATORS[0]);
-  const [sessionId] = useState(() => `session-${Math.random().toString(36).substring(2, 9)}`);
+  const [sessionId] = useState(() => (
+    typeof crypto?.randomUUID === 'function'
+      ? crypto.randomUUID()
+      : 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (character) => {
+        const random = Math.random() * 16 | 0;
+        const value = character === 'x' ? random : (random & 0x3 | 0x8);
+        return value.toString(16);
+      })
+  ));
 
   const handleNewQuery = () => {
     setActiveWorkItem(null);

@@ -31,10 +31,13 @@ class ModelConfig(BaseModel):
     native_tools: bool = False  # future flag per PRD Section 8.2
 
 class ModelRegistry:
-    def __init__(self, yaml_path: str = "../models.yaml"):
-        # Resolve path relative to backend/app/config.py or use absolute
-        # Since running from backend/, ../models.yaml should work
-        path = Path(yaml_path)
+    def __init__(self, yaml_path: str | None = None):
+        if yaml_path is None:
+            # Support both local runs from backend/ and the /app Docker mount.
+            candidates = (Path("../models.yaml"), Path("/app/models.yaml"))
+            path = next((candidate for candidate in candidates if candidate.exists()), candidates[0])
+        else:
+            path = Path(yaml_path)
         if not path.exists():
             raise FileNotFoundError(f"models.yaml not found at {path.resolve()}")
         
