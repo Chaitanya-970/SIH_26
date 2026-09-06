@@ -28,3 +28,4 @@ class ToolResult(BaseModel):
     tool: str
     result: str
     success: bool
+    filename: Optional[str] = None

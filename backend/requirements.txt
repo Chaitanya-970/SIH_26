@@ -16,3 +16,7 @@ pytest
 pytest-asyncio
 types-PyYAML
 mypy==1.15.0
+pymupdf
+nltk
+pytesseract
+tiktoken

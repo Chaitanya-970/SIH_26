@@ -8,11 +8,14 @@ from __future__ import annotations
 
 import base64
 import json
+import logging
 import os
+import re
 import uuid
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from typing import AsyncGenerator, List, Optional
+from anyio import to_thread
 
 from app.agent.parser import extract_text_before_tool_call, parse_tool_call
 from app.agent.prompts import build_system_prompt, build_vision_prompt
@@ -22,9 +25,16 @@ from app.config import ModelRegistry, Settings
 from app.services.ollama import OllamaClient, OllamaError
 
 
+logger = logging.getLogger(__name__)
+
 # =====================================================================
 # 1. Orchestrator Events
 # =====================================================================
+
+_SESSION_ID_RE = re.compile(
+    r'^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$'
+)
+
 
 @dataclass
 class OrchestratorEvent:
@@ -118,6 +128,9 @@ class SessionManager:
 
     def load_history(self, session_id: str) -> dict:
         """Load session state from history.json. Returns empty state if missing."""
+        if not _SESSION_ID_RE.match(session_id):
+            return {"session_id": session_id, "messages": []}
+            
         path = os.path.join(self.sessions_dir, session_id, "history.json")
         if not os.path.exists(path):
             return {"session_id": session_id, "messages": []}
@@ -192,7 +205,7 @@ class AgentOrchestrator:
         max_steps = self.settings.max_agent_steps
 
         # Load session state
-        state = self.session_manager.load_history(session_id)
+        state = await to_thread.run_sync(self.session_manager.load_history, session_id)
         messages: list = state.get("messages", [])
 
         # Route query
@@ -293,7 +306,7 @@ class AgentOrchestrator:
                 "write_spreadsheet",
                 "write_presentation",
             ):
-                filename = result.result.split(": ")[-1].strip() if ": " in result.result else ""
+                filename = getattr(result, "filename", None)
                 if filename:
                     path = f"/api/sessions/{session_id}/files/{filename}"
                     yield FileCreatedEvent(filename=filename, path=path)
@@ -329,7 +342,7 @@ class AgentOrchestrator:
 
         # Persist full conversation history
         state["messages"] = messages
-        self.session_manager.save_history(session_id, state)
+        await to_thread.run_sync(self.session_manager.save_history, session_id, state)
         yield DoneEvent(steps_completed=step)
 
     async def _handle_vision(
@@ -344,6 +357,10 @@ class AgentOrchestrator:
         """Handle vision requests: single-turn generation with base64 encoded images."""
         vision_prompt = build_vision_prompt(user_message)
 
+        def _read_image(path: str) -> str:
+            with open(path, "rb") as f:
+                return base64.b64encode(f.read()).decode("utf-8")
+
         images = []
         if uploaded_files:
             for fpath in uploaded_files:
@@ -353,8 +370,10 @@ class AgentOrchestrator:
                     else os.path.join(self.session_manager.get_uploads_dir(session_id), fpath)
                 )
                 if os.path.exists(full_path):
-                    with open(full_path, "rb") as f:
-                        images.append(base64.b64encode(f.read()).decode("utf-8"))
+                    b64_img = await to_thread.run_sync(_read_image, full_path)
+                    images.append(b64_img)
+                else:
+                    logger.warning(f"Vision image not found: {full_path}")
 
         try:
             full_response = ""
@@ -378,7 +397,7 @@ class AgentOrchestrator:
             yield ErrorEvent(message=f"Vision model error: {str(e)}", retryable=True)
 
         state["messages"] = messages
-        self.session_manager.save_history(session_id, state)
+        await to_thread.run_sync(self.session_manager.save_history, session_id, state)
         yield DoneEvent(steps_completed=1)
 
 

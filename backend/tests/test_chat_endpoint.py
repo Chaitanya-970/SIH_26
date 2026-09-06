@@ -84,7 +84,7 @@ def mock_app():
 
     # Create mock session manager
     mock_session_mgr = MagicMock(spec=SessionManager)
-    mock_session_mgr.create_session.return_value = "test-session-123"
+    mock_session_mgr.create_session.return_value = "00000000-0000-0000-0000-000000000000"
 
     # Create mock orchestrator that yields a simple event sequence
     mock_orchestrator = MagicMock(spec=AgentOrchestrator)
@@ -169,7 +169,7 @@ def test_chat_endpoint_session_creation(client, mock_app):
     events = _parse_sse_events(response.text)
     session_event = events[0]
     assert session_event[0] == "session"
-    assert session_event[1]["session_id"] == "test-session-123"
+    assert session_event[1]["session_id"] == "00000000-0000-0000-0000-000000000000"
 
 
 def test_chat_endpoint_empty_message(client):
@@ -230,3 +230,38 @@ def test_format_sse_all_event_types():
         assert data_line.startswith("data: ")
         parsed = json.loads(data_line.replace("data: ", ""))
         assert parsed["test"] is True
+
+def test_chat_endpoint_multipart_basic(client, mock_app):
+    """AC-8: Uploaded files saved to uploads/ before orchestrator"""
+    file_content = b"test content"
+    response = client.post(
+        "/api/chat",
+        data={"message": "Here is a file", "session_id": "00000000-0000-0000-0000-000000000000"},
+        files={"file": ("test.txt", file_content, "text/plain")},
+    )
+    assert response.status_code == 200
+    
+    events = _parse_sse_events(response.text)
+    event_types = [e[0] for e in events]
+    assert "session" in event_types
+    assert "done" in event_types
+
+def test_chat_endpoint_multipart_file_too_large(client, mock_app):
+    """AC-7: Files > max_file_size_mb rejected with SSE error"""
+    # Temporarily set max_file_size_mb to a very small value
+    mock_app.state.settings.max_file_size_mb = 0.000001 # ~1 byte
+    
+    file_content = b"this is definitely more than 1 byte"
+    response = client.post(
+        "/api/chat",
+        data={"message": "Here is a file"},
+        files={"file": ("large.txt", file_content, "text/plain")},
+    )
+    assert response.status_code == 200
+    
+    events = _parse_sse_events(response.text)
+    event_types = [e[0] for e in events]
+    assert "error" in event_types
+    
+    error_event = [e for e in events if e[0] == "error"][0]
+    assert "exceeds" in error_event[1]["message"]

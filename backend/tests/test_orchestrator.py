@@ -181,7 +181,7 @@ class FakeOllamaClient:
         yield "Vision analysis: P&ID diagram verified."
 
 
-@pytest.mark.asyncio
+
 async def test_orchestrator_single_turn_final_answer(
     session_manager, dummy_settings, mock_registry
 ):
@@ -220,7 +220,7 @@ async def test_orchestrator_single_turn_final_answer(
     assert "2 + 2 equals 4." in history["messages"][1]["content"]
 
 
-@pytest.mark.asyncio
+
 async def test_orchestrator_multi_turn_tool_call(
     session_manager, dummy_settings, mock_registry, monkeypatch
 ):
@@ -273,7 +273,7 @@ async def test_orchestrator_multi_turn_tool_call(
     assert roles == ["user", "assistant", "tool", "assistant"]
 
 
-@pytest.mark.asyncio
+
 async def test_orchestrator_file_created_event(
     session_manager, dummy_settings, mock_registry, monkeypatch
 ):
@@ -291,6 +291,7 @@ async def test_orchestrator_file_created_event(
             tool="write_word_document",
             result="Document created successfully at: report.docx",
             success=True,
+            filename="report.docx"
         )
     )
     monkeypatch.setattr("app.agent.orchestrator.dispatch_tool", mock_dispatch)
@@ -314,7 +315,7 @@ async def test_orchestrator_file_created_event(
     assert f"/api/sessions/{session_id}/files/report.docx" in file_events[0].path
 
 
-@pytest.mark.asyncio
+
 async def test_orchestrator_max_steps_cap(
     session_manager, dummy_settings, mock_registry, monkeypatch
 ):
@@ -351,7 +352,7 @@ async def test_orchestrator_max_steps_cap(
     assert "step limit" in last_msg["content"].lower()
 
 
-@pytest.mark.asyncio
+
 async def test_orchestrator_ollama_error_handling(
     session_manager, dummy_settings, mock_registry
 ):
@@ -361,7 +362,7 @@ async def test_orchestrator_ollama_error_handling(
     class ErrorOllamaClient:
         async def chat_stream(self, *args, **kwargs):
             raise OllamaError(message="CUDA OOM", status_code=500, retryable=True)
-            yield ""  # Generator syntax
+            yield ""  # Unreachable; purely for typing/generator syntax
 
     router = ModelRouter(mock_registry)
     orchestrator = AgentOrchestrator(
@@ -371,6 +372,9 @@ async def test_orchestrator_ollama_error_handling(
         session_manager=session_manager,
         settings=dummy_settings,
     )
+    
+    mock_save = MagicMock(wraps=session_manager.save_history)
+    session_manager.save_history = mock_save
 
     events = []
     async for ev in orchestrator.run(session_id, "Hello"):
@@ -382,11 +386,62 @@ async def test_orchestrator_ollama_error_handling(
     assert error_events[0].retryable is True
 
     # State still persisted
+    assert mock_save.called
     history = session_manager.load_history(session_id)
     assert len(history["messages"]) >= 1
 
 
-@pytest.mark.asyncio
+def test_orchestrator_sliding_window(session_manager, dummy_settings, mock_registry):
+    """Test sliding window logic: >20 messages truncated for Ollama but preserved in history."""
+    session_id = session_manager.create_session()
+    
+    # Create 25 dummy messages in history
+    state = session_manager.load_history(session_id)
+    for i in range(25):
+        state["messages"].append({
+            "role": "user" if i % 2 == 0 else "assistant",
+            "content": f"Message {i}",
+            "timestamp": "2026-09-06T00:00:00Z"
+        })
+    session_manager.save_history(session_id, state)
+    
+    call_args_list = []
+    
+    async def fake_stream(*args, **kwargs):
+        call_args_list.append((args, kwargs))
+        yield "Response"
+        
+    fake_ollama = MagicMock()
+    fake_ollama.chat_stream = fake_stream
+    
+    router = ModelRouter(mock_registry)
+    orchestrator = AgentOrchestrator(
+        ollama=fake_ollama,
+        router=router,
+        registry=mock_registry,
+        session_manager=session_manager,
+        settings=dummy_settings,
+    )
+    
+    import asyncio
+    async def run_it():
+        async for _ in orchestrator.run(session_id, "New message"):
+            pass
+    asyncio.run(run_it())
+    
+    # Check that Ollama was called with system prompt + last 20 messages (including new user message) = 21 messages
+    assert len(call_args_list) > 0
+    ollama_messages = call_args_list[0][0][1]
+    assert len(ollama_messages) == 21
+    assert ollama_messages[0]["role"] == "system"
+    assert ollama_messages[-1]["content"] == "New message"
+    
+    # Verify history.json has all messages (25 initial + 1 new user + 1 new assistant = 27)
+    history = session_manager.load_history(session_id)
+    assert len(history["messages"]) == 27
+
+
+
 async def test_orchestrator_vision_handling(
     session_manager, dummy_settings, mock_registry
 ):

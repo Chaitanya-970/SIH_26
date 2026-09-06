@@ -9,29 +9,25 @@ from __future__ import annotations
 
 import json
 import os
+import re
 from typing import Optional
 
 from fastapi import APIRouter, Request, UploadFile, File, Form
 from fastapi.responses import StreamingResponse
+from starlette.datastructures import UploadFile as StarletteUploadFile
 from pydantic import BaseModel
 
 router = APIRouter()
 
 
 # =====================================================================
-# JSON body model (matches frontend sseClient.js)
-# =====================================================================
-
-class ChatRequestBody(BaseModel):
-    message: str
-    session_id: Optional[str] = None
-    model_override: Optional[str] = None
-    attachment: Optional[dict] = None  # {name, size} from frontend
-
-
-# =====================================================================
 # SSE Formatting Helpers
 # =====================================================================
+
+_SESSION_ID_RE = re.compile(
+    r'^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$'
+)
+
 
 def _format_sse(event_type: str, data: dict) -> str:
     """Format a single SSE event block."""
@@ -98,6 +94,12 @@ async def _handle_json(request: Request):
     orchestrator = request.app.state.orchestrator
     session_manager = request.app.state.session_manager
 
+    if session_id and not _SESSION_ID_RE.match(session_id):
+        return StreamingResponse(
+            _error_stream("Invalid session ID format"),
+            media_type="text/event-stream",
+        )
+
     if not session_id:
         session_id = session_manager.create_session()
 
@@ -128,9 +130,14 @@ async def _handle_json(request: Request):
 async def _handle_multipart(request: Request):
     """Handle multipart/form-data from curl or file upload clients."""
     form = await request.form()
-    message = form.get("message", "")
-    session_id = form.get("session_id")
-    model_override = form.get("model_override")
+    msg_item = form.get("message", "")
+    message: str = msg_item if isinstance(msg_item, str) else ""
+    
+    sid_item = form.get("session_id")
+    session_id: Optional[str] = sid_item if isinstance(sid_item, str) else None
+    
+    mod_item = form.get("model_override")
+    model_override: Optional[str] = mod_item if isinstance(mod_item, str) else None
 
     if not message:
         return StreamingResponse(
@@ -142,6 +149,12 @@ async def _handle_multipart(request: Request):
     session_manager = request.app.state.session_manager
     settings = request.app.state.settings
 
+    if session_id and not _SESSION_ID_RE.match(session_id):
+        return StreamingResponse(
+            _error_stream("Invalid session ID format"),
+            media_type="text/event-stream",
+        )
+
     if not session_id:
         session_id = session_manager.create_session()
 
@@ -150,30 +163,33 @@ async def _handle_multipart(request: Request):
     uploaded_filenames = []
     for key in form:
         item = form[key]
-        if hasattr(item, "filename") and item.filename:
-            upload: UploadFile = item
-            ext = os.path.splitext(upload.filename)[1]
-            file_extensions.append(ext)
-            uploaded_filenames.append(upload.filename)
+        if not isinstance(item, StarletteUploadFile) or not item.filename:
+            continue
+        filename: str = item.filename
+        upload = item
+        ext = os.path.splitext(filename)[1]
+        file_extensions.append(ext)
+        uploaded_filenames.append(filename)
 
-            # Validate file size (F-33)
-            contents = await upload.read()
-            max_size = settings.max_file_size_mb * 1024 * 1024
-            if len(contents) > max_size:
-                return StreamingResponse(
-                    _error_stream(
-                        f"File {upload.filename} exceeds {settings.max_file_size_mb} MB limit"
-                    ),
-                    media_type="text/event-stream",
-                )
-
-            # Save to session uploads directory
-            dest = os.path.join(
-                session_manager.get_uploads_dir(session_id), upload.filename
+        # Validate file size (F-33)
+        contents = await upload.read()
+        max_size = settings.max_file_size_mb * 1024 * 1024
+        if len(contents) > max_size:
+            return StreamingResponse(
+                _error_stream(
+                    f"File {filename} exceeds {settings.max_file_size_mb} MB limit"
+                ),
+                media_type="text/event-stream",
             )
-            os.makedirs(os.path.dirname(dest), exist_ok=True)
-            with open(dest, "wb") as f:
-                f.write(contents)
+
+        # Save to session uploads directory
+        safe_filename = os.path.basename(filename)
+        dest = os.path.join(
+            session_manager.get_uploads_dir(session_id), safe_filename
+        )
+        os.makedirs(os.path.dirname(dest), exist_ok=True)
+        with open(dest, "wb") as f:
+            f.write(contents)
 
     async def event_stream():
         yield _format_sse("session", {"session_id": session_id})
