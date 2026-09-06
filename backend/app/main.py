@@ -13,6 +13,8 @@ from app.agent.router import ModelRouter
 from app.agent.orchestrator import AgentOrchestrator, SessionManager
 from app.routers import models as models_router
 from app.routers import chat as chat_router
+from app.routers import network as network_router
+from app.routers import files as files_router
 
 settings = Settings()
 
@@ -67,4 +69,6 @@ async def global_exception_handler(request: Request, exc: Exception):
 app.include_router(chat_router.router)
 app.include_router(documents_router)
 app.include_router(kb_router)
-app.include_router(models_router.router)
+app.include_router(models_router.router)
+app.include_router(network_router.router)
+app.include_router(files_router.router)
