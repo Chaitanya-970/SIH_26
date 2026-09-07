@@ -41,7 +41,7 @@ class OllamaClient:
         """Yields raw text tokens as they arrive from Ollama."""
         options = {"num_ctx": num_ctx}
         if "moondream" in model.lower():
-            options["repeat_penalty"] = 1.1
+            options["repeat_penalty"] = 1.05
             options["temperature"] = 0.1
 
         payload = {

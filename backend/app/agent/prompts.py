@@ -74,12 +74,8 @@ Think step by step. Explain your reasoning before each tool call so the user can
 def build_vision_prompt(user_message: str) -> str:
     """Build a prompt for the vision model (Moondream) which may not support tool calling.
     Vision is typically used for a single extraction step, not multi-step reasoning."""
-    return f"""Analyze the image carefully. Extract all relevant text, data, tables, and observations.
-If this is an engineering diagram (P&ID), describe the components, connections, and any readings.
-If this is a scanned document, extract the text as accurately as possible.
+    return f"""Describe and summarize this technical document or diagram in detail based on the user request: {user_message}
 
-User's request: {user_message}
-
-Provide your analysis as structured text."""
+Provide a comprehensive inspection summary covering all visible sections, checklist items, observations, equipment numbers, and findings."""
 
 __all__ = ["TOOL_DEFINITIONS", "TOOL_CALL_FORMAT", "build_system_prompt", "build_vision_prompt"]
