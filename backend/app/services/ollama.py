@@ -12,7 +12,9 @@ class OllamaError(Exception):
 class OllamaClient:
     def __init__(self, base_url: str):
         self.base_url = base_url.rstrip("/")
-        self._client = httpx.AsyncClient(timeout=120.0)
+        self._client = httpx.AsyncClient(
+            timeout=httpx.Timeout(connect=10.0, read=600.0, write=30.0, pool=30.0)
+        )
 
     async def _handle_response_error(self, response: httpx.Response):
         try:
@@ -59,6 +61,12 @@ class OllamaClient:
                             yield chunk["response"]
                         if chunk.get("done"):
                             return
+        except httpx.ReadTimeout as e:
+            raise OllamaError(
+                message="Ollama inference timed out after 10 minutes while waiting for a response.",
+                status_code=504,
+                retryable=True,
+            ) from e
         except httpx.RequestError as e:
             raise OllamaError(
                 message=f"Could not connect to Ollama: {str(e)}",
@@ -90,6 +98,12 @@ class OllamaClient:
             if "response" not in data:
                 raise OllamaError(f"Unexpected Ollama response shape: {data}", status_code=500, retryable=False)
             return data["response"]
+        except httpx.ReadTimeout as e:
+            raise OllamaError(
+                message="Ollama inference timed out after 10 minutes while waiting for a response.",
+                status_code=504,
+                retryable=True,
+            ) from e
         except httpx.RequestError as e:
             raise OllamaError(
                 message=f"Could not connect to Ollama: {str(e)}",
@@ -121,6 +135,12 @@ class OllamaClient:
                             yield content
                         if chunk.get("done"):
                             return
+        except httpx.ReadTimeout as e:
+            raise OllamaError(
+                message="Ollama inference timed out after 10 minutes while waiting for a response.",
+                status_code=504,
+                retryable=True,
+            ) from e
         except httpx.RequestError as e:
             raise OllamaError(
                 message=f"Could not connect to Ollama: {str(e)}",

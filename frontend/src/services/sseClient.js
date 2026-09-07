@@ -1,5 +1,23 @@
 // SSE Streaming Client for CITADEL WORKSPACE
 
+const SESSION_ID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+function createSessionId() {
+  if (typeof crypto?.randomUUID === 'function') {
+    return crypto.randomUUID();
+  }
+
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (character) => {
+    const random = Math.random() * 16 | 0;
+    const value = character === 'x' ? random : (random & 0x3 | 0x8);
+    return value.toString(16);
+  });
+}
+
+function normalizeSessionId(sessionId) {
+  return SESSION_ID_PATTERN.test(sessionId || '') ? sessionId : createSessionId();
+}
+
 /**
  * Stream reader parsing Server-Sent Events from POST /api/chat
  * Handles live event dispatch: token, step_start, tool_call, tool_result, file_created, model_switch, sources_found, error, done
@@ -12,6 +30,8 @@ export async function streamChat({
   onEvent,
   abortSignal
 }) {
+  const validSessionId = normalizeSessionId(sessionId);
+
   try {
     const response = await fetch('/api/chat', {
       method: 'POST',
@@ -20,7 +40,7 @@ export async function streamChat({
         'Accept': 'text/event-stream'
       },
       body: JSON.stringify({
-        session_id: sessionId,
+        session_id: validSessionId,
         message,
         model_override: modelOverride === 'auto' ? null : modelOverride,
         attachment: attachment ? { name: attachment.name, size: attachment.size } : null
