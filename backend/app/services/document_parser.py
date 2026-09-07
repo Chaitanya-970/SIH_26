@@ -94,8 +94,10 @@ def parse_csv(file_path: str | Path) -> list[ExtractedPage]:
     """Extract tabular data from a CSV file using pandas."""
     try:
         df = pd.read_csv(str(file_path))
-        # Convert to a readable string representation
-        text = df.to_string(index=False)
+        # Convert to a readable string representation, adding periods to each row
+        # so the chunker's sentence tokenizer can split it into valid chunks.
+        lines = df.to_string(index=False).split('\n')
+        text = '.\n'.join(lines) + '.'
         return [ExtractedPage(page_number=1, text=text, needs_ocr=False)]
     except Exception as e:
         # Fallback to plain text if pandas fails (e.g. malformed CSV)
