@@ -22,3 +22,8 @@ pytesseract
 tiktoken
 psutil
 pillow
+scikit-learn
+statsmodels
+matplotlib
+seaborn
+scipy

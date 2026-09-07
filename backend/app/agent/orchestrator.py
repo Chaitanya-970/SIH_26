@@ -73,7 +73,7 @@ class ToolResultEvent(OrchestratorEvent):
 @dataclass
 class FileCreatedEvent(OrchestratorEvent):
     type: str = "file_created"
-    filename: str = ""
+    name: str = ""
     path: str = ""
 
 
@@ -264,6 +264,12 @@ class AgentOrchestrator:
                 async for token in self.ollama.chat_stream(current_model, ollama_messages, num_ctx):
                     full_response += token
                     yield TokenEvent(text=token)
+                    
+                    # Early exit: Stop the model from runaway generation after it finishes a tool call
+                    if "}" in token:
+                        if parse_tool_call(full_response) is not None:
+                            break
+                            
             except OllamaError as e:
                 yield ErrorEvent(message=e.message, retryable=e.retryable)
                 break
@@ -309,7 +315,7 @@ class AgentOrchestrator:
                 filename = getattr(result, "filename", None)
                 if filename:
                     path = f"/api/sessions/{session_id}/files/{filename}"
-                    yield FileCreatedEvent(filename=filename, path=path)
+                    yield FileCreatedEvent(name=filename, path=path)
 
             # Append tool result to conversation history
             messages.append({
@@ -364,11 +370,15 @@ class AgentOrchestrator:
         images = []
         if uploaded_files:
             for fpath in uploaded_files:
-                full_path = (
-                    fpath
-                    if os.path.isabs(fpath)
-                    else os.path.join(self.session_manager.get_uploads_dir(session_id), fpath)
-                )
+                # fpath from chat.py is usually already a valid relative or absolute path
+                if os.path.exists(fpath):
+                    full_path = fpath
+                else:
+                    full_path = (
+                        fpath
+                        if os.path.isabs(fpath)
+                        else os.path.join(self.session_manager.get_uploads_dir(session_id), fpath)
+                    )
                 if os.path.exists(full_path):
                     b64_img = await to_thread.run_sync(_read_image, full_path)
                     images.append(b64_img)

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { fetchRecentAnalyses, fetchNetworkStatus } from '../services/api';
+import { fetchRecentAnalyses, fetchNetworkStatus, fetchKnowledgeBase } from '../services/api';
 import FloatingLines from '../components/FloatingLines';
 import WireframeBall from '../components/WireframeBall';
 import {
@@ -40,10 +40,12 @@ export default function Dashboard({
   const [currentDateTime, setCurrentDateTime] = useState('');
   const [recentWorkItems, setRecentWorkItems] = useState([]);
   const [networkStatus, setNetworkStatus] = useState(null);
+  const [kbDocs, setKbDocs] = useState([]);
 
   useEffect(() => {
     fetchRecentAnalyses().then(data => setRecentWorkItems(data || [])).catch(() => setRecentWorkItems([]));
     fetchNetworkStatus().then(data => setNetworkStatus(data)).catch(() => setNetworkStatus(null));
+    fetchKnowledgeBase().then(docs => setKbDocs(docs || [])).catch(() => setKbDocs([]));
     
     const updateTime = () => {
       const now = new Date();
@@ -63,13 +65,33 @@ export default function Dashboard({
     return () => clearInterval(timer);
   }, []);
 
-  // Category breakdown for Knowledge Index
-  const knowledgeCategories = [
-    { label: 'Engineering', count: 82 },
-    { label: 'Operations', count: 94 },
-    { label: 'Incidents', count: 31 },
-    { label: 'Safety', count: 40 }
-  ];
+  // Category classification helper
+  const getDocCategory = (name) => {
+    const upper = (name || '').toUpperCase();
+    if (upper.includes('PUMP') || upper.includes('ASME') || upper.includes('TECH') || upper.includes('SPEC')) return 'Engineering';
+    if (upper.includes('SAFETY') || upper.includes('HAZARD') || upper.includes('OSHA')) return 'Safety';
+    if (upper.includes('INCIDENT') || upper.includes('FAILURE')) return 'Incidents';
+    if (upper.includes('MAINTENANCE') || upper.includes('INSPECTION') || upper.includes('SOP')) return 'Operations';
+    return 'Engineering';
+  };
+
+  const totalDocs = networkStatus?.knowledge_base?.documents ?? kbDocs.length;
+  const totalPages = networkStatus?.knowledge_base?.pages_indexed ?? kbDocs.reduce((acc, d) => acc + (d.page_count || 1), 0);
+
+  // Category breakdown for Knowledge Index - fully dynamic and resets to 0
+  const knowledgeCategories = totalDocs === 0
+    ? [
+        { label: 'Engineering', count: 0 },
+        { label: 'Operations', count: 0 },
+        { label: 'Incidents', count: 0 },
+        { label: 'Safety', count: 0 }
+      ]
+    : (networkStatus?.knowledge_base?.categories || [
+        { label: 'Engineering', count: kbDocs.filter(d => getDocCategory(d.name) === 'Engineering').length },
+        { label: 'Operations', count: kbDocs.filter(d => getDocCategory(d.name) === 'Operations').length },
+        { label: 'Incidents', count: kbDocs.filter(d => getDocCategory(d.name) === 'Incidents').length },
+        { label: 'Safety', count: kbDocs.filter(d => getDocCategory(d.name) === 'Safety').length }
+      ]);
 
   // Helper for semantic status rendering
   const renderStatus = (status) => {
@@ -332,90 +354,105 @@ export default function Dashboard({
           </div>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-            {recentWorkItems.map((item, idx) => (
-              <div
-                key={item.id}
-                onClick={() => onSelectRecentWork(item)}
-                className="technical-row anim-stagger-item"
-                style={{
-                  padding: '12px 16px',
-                  animationDelay: `${idx * 50}ms`
-                }}
-              >
-                {/* Left: ID & Title & Query */}
-                <div style={{ display: 'flex', alignItems: 'flex-start', gap: '14px', flex: 1, minWidth: 0 }}>
-                  <span style={{
-                    fontFamily: 'var(--font-mono)',
-                    fontSize: '12px',
-                    fontWeight: 700,
-                    color: 'var(--text-dim)',
-                    marginTop: '2px'
-                  }}>
-                    {item.num}
-                  </span>
-
-                  <div style={{ minWidth: 0 }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '2px' }}>
-                      <span style={{
-                        fontFamily: 'var(--font-display)',
-                        fontSize: '13.5px',
-                        fontWeight: 600,
-                        color: 'var(--text-main)'
-                      }}>
-                        {item.title}
-                      </span>
-                    </div>
-
-                    <div style={{
-                      fontSize: '12px',
-                      color: 'var(--text-secondary)',
-                      fontStyle: 'italic',
-                      marginBottom: '4px',
-                      whiteSpace: 'nowrap',
-                      overflow: 'hidden',
-                      textOverflow: 'ellipsis',
-                      maxWidth: '560px'
-                    }}>
-                      &ldquo;{item.query}&rdquo;
-                    </div>
-
-                    <div style={{
-                      display: 'flex',
-                      alignItems: 'center',
-                      gap: '8px',
-                      fontSize: '10.5px',
+            {recentWorkItems.length === 0 ? (
+              <div style={{
+                padding: '24px 16px',
+                textAlign: 'center',
+                background: 'var(--bg-panel)',
+                border: '1px dashed var(--border-subtle)',
+                borderRadius: 'var(--radius-xs)',
+                color: 'var(--text-dim)',
+                fontFamily: 'var(--font-mono)',
+                fontSize: '11px'
+              }}>
+                No prior session analyses found. Initiate a query in Workspace to begin logging.
+              </div>
+            ) : (
+              recentWorkItems.map((item, idx) => (
+                <div
+                  key={item.id}
+                  onClick={() => onSelectRecentWork(item)}
+                  className="technical-row anim-stagger-item"
+                  style={{
+                    padding: '12px 16px',
+                    animationDelay: `${idx * 50}ms`
+                  }}
+                >
+                  {/* Left: ID & Title & Query */}
+                  <div style={{ display: 'flex', alignItems: 'flex-start', gap: '14px', flex: 1, minWidth: 0 }}>
+                    <span style={{
                       fontFamily: 'var(--font-mono)',
-                      color: 'var(--text-dim)'
+                      fontSize: '12px',
+                      fontWeight: 700,
+                      color: 'var(--text-dim)',
+                      marginTop: '2px'
                     }}>
-                      <span>Document Index</span>
-                      <span>·</span>
-                      <span>{item.sources?.length || 1} sources</span>
-                      <span>·</span>
-                      {renderStatus(item.status)}
+                      {item.num}
+                    </span>
+
+                    <div style={{ minWidth: 0 }}>
+                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '2px' }}>
+                        <span style={{
+                          fontFamily: 'var(--font-display)',
+                          fontSize: '13.5px',
+                          fontWeight: 600,
+                          color: 'var(--text-main)'
+                        }}>
+                          {item.title}
+                        </span>
+                      </div>
+
+                      <div style={{
+                        fontSize: '12px',
+                        color: 'var(--text-secondary)',
+                        fontStyle: 'italic',
+                        marginBottom: '4px',
+                        whiteSpace: 'nowrap',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        maxWidth: '560px'
+                      }}>
+                        &ldquo;{item.query}&rdquo;
+                      </div>
+
+                      <div style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '8px',
+                        fontSize: '10.5px',
+                        fontFamily: 'var(--font-mono)',
+                        color: 'var(--text-dim)'
+                      }}>
+                        <span>Document Index</span>
+                        <span>·</span>
+                        <span>{item.sources?.length || 1} sources</span>
+                        <span>·</span>
+                        {renderStatus(item.status)}
+                      </div>
                     </div>
                   </div>
-                </div>
 
-                {/* Right: Time & Action */}
-                <div style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '12px',
-                  marginLeft: '16px',
-                  flexShrink: 0
-                }}>
-                  <span style={{
-                    fontFamily: 'var(--font-mono)',
-                    fontSize: '11px',
-                    color: 'var(--text-dim)'
+                  {/* Right: Time & Action */}
+                  <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '12px',
+                    marginLeft: '16px',
+                    flexShrink: 0
                   }}>
-                    {item.meta.split('·')[2]?.trim() || item.meta}
-                  </span>
+                    <span style={{
+                      fontFamily: 'var(--font-mono)',
+                      fontSize: '11px',
+                      color: 'var(--text-dim)'
+                    }}>
+                      {item.meta.split('·')[2]?.trim() || item.meta}
+                    </span>
 
-                  <ChevronRight size={14} style={{ color: 'var(--text-dim)' }} />
+                    <ChevronRight size={14} style={{ color: 'var(--text-dim)' }} />
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))
+            )}
           </div>
         </div>
 
@@ -455,13 +492,21 @@ export default function Dashboard({
                 <span style={{
                   fontFamily: 'var(--font-mono)',
                   fontSize: '10px',
-                  color: 'var(--accent-orange)',
+                  color: totalDocs > 0 ? 'var(--accent-orange)' : 'var(--text-dim)',
                   display: 'flex',
                   alignItems: 'center',
                   gap: '4px'
                 }}>
-                  <span className="pulse-dot-amber" style={{ width: '4px', height: '4px' }} />
-                  <span>Index Ready</span>
+                  <span
+                    className={totalDocs > 0 ? "pulse-dot-amber" : ""}
+                    style={{
+                      width: '4px',
+                      height: '4px',
+                      borderRadius: '50%',
+                      background: totalDocs > 0 ? undefined : 'var(--text-dim)'
+                    }}
+                  />
+                  <span>{totalDocs > 0 ? 'Index Ready' : 'Index Empty'}</span>
                 </span>
               </div>
 
@@ -469,15 +514,15 @@ export default function Dashboard({
               <div style={{ display: 'flex', gap: '24px', marginBottom: '12px' }}>
                 <div>
                   <div style={{ fontFamily: 'var(--font-mono)', fontSize: '18px', fontWeight: 700, color: 'var(--text-main)' }}>
-                    {networkStatus?.knowledge_base?.documents || 0}
+                    {totalDocs}
                   </div>
                   <div style={{ fontSize: '10px', color: 'var(--text-dim)', fontFamily: 'var(--font-mono)' }}>
                     Documents
                   </div>
                 </div>
                 <div style={{ borderLeft: '1px solid var(--border-subtle)', paddingLeft: '20px' }}>
-                  <div style={{ fontFamily: 'var(--font-mono)', fontSize: '18px', fontWeight: 700, color: 'var(--accent-orange)' }}>
-                    {networkStatus?.knowledge_base?.pages_indexed || 0}
+                  <div style={{ fontFamily: 'var(--font-mono)', fontSize: '18px', fontWeight: 700, color: totalPages > 0 ? 'var(--accent-orange)' : 'var(--text-dim)' }}>
+                    {totalPages}
                   </div>
                   <div style={{ fontSize: '10px', color: 'var(--text-dim)', fontFamily: 'var(--font-mono)' }}>
                     Pages Indexed

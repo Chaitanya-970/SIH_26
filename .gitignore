@@ -3,6 +3,11 @@ node_modules/
 dist/
 build/
 .env
+.env.local
+*.local
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
 
 # Python
 __pycache__/
@@ -13,23 +18,40 @@ __pycache__/
 .venv/
 venv/
 env/
+*.log
 
-# Data & Sessions (Do not track actual data, only the folder structure)
+# Data & Sessions (Do not track actual runtime data)
+backend/data/sessions/
+backend/data/chroma/
+backend/data/uploads/
+data/
+
+# Keep registry.json in git, ignore all other uploaded documents in kb
 backend/data/kb/*
+!backend/data/kb/registry.json
 !backend/data/kb/.gitkeep
 backend/data/sessions/*
 !backend/data/sessions/.gitkeep
 backend/data/chroma/*
 !backend/data/chroma/.gitkeep
 
-# IDEs
+# Generated deliverables (keep datasets intact)
+*.docx
+*.xlsx
+*.pptx
+!datasets/*
+
+# IDEs & System
 .vscode/
 .idea/
 .DS_Store
+Thumbs.db
 
 # RFCs and Documentation
 docs/
 reviews/
 
-# Freebuff
+# AI Tooling & Metadata
 .freebuff/
+.agents/
+.gemini/

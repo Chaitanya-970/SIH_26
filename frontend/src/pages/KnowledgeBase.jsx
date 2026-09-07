@@ -220,14 +220,14 @@ export default function KnowledgeBase({
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center',
-        padding: '0 4px',
-        marginBottom: '18px',
+        marginTop: '6px',
         fontFamily: 'var(--font-mono)',
         fontSize: '10px',
-        color: 'var(--text-dim)'
+        color: 'var(--text-dim)',
+        padding: '0 4px'
       }}>
-        <span>SUPPORTED: PDF · DOCX · XLSX · CSV · PNG · JPG (≤ 50 MB)</span>
-        <span>AIR-GAPPED LOCAL INGESTION</span>
+        <span>SUPPORTED: PDF · DOCX · XLSX · CSV</span>
+        <span>LOCAL UPLOAD</span>
       </div>
 
       {/* Upload Feedback Banner */}

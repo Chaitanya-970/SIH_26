@@ -7,6 +7,8 @@ from typing import Any
 import logging
 from anyio import to_thread
 
+from app.services import chroma
+
 import chromadb # type: ignore
 import pandas as pd # type: ignore
 from pypdf import PdfReader # type: ignore
@@ -36,6 +38,19 @@ async def execute_code(args: dict[str, Any], context: ToolContext) -> ToolResult
     timeout = context.settings.sandbox_timeout_seconds
 
     try:
+        os.makedirs(context.uploads_dir, exist_ok=True)
+        
+        # Auto-mount KB files: if the script mentions a filename that exists in the KB, copy it to the sandbox
+        kb_dir_path = os.path.abspath(context.settings.kb_dir)
+        if os.path.exists(kb_dir_path):
+            for kb_file in os.listdir(kb_dir_path):
+                if os.path.isfile(os.path.join(kb_dir_path, kb_file)) and kb_file.lower() in script.lower():
+                    import shutil
+                    shutil.copy(os.path.join(kb_dir_path, kb_file), os.path.join(context.uploads_dir, kb_file))
+                    # Also copy as lowercase to prevent case-sensitivity issues in pandas
+                    if kb_file != kb_file.lower():
+                        shutil.copy(os.path.join(kb_dir_path, kb_file), os.path.join(context.uploads_dir, kb_file.lower()))
+
         # Primary: Docker sandbox (when Vedant's image is ready)
         # Fallback: direct subprocess (for development/testing)
         proc = await asyncio.create_subprocess_exec(
@@ -43,6 +58,8 @@ async def execute_code(args: dict[str, Any], context: ToolContext) -> ToolResult
             "--network", "none",
             "--memory", "512m",
             "--cpus", "1",
+            "-v", f"{os.path.abspath(context.uploads_dir)}:/workspace",
+            "-w", "/workspace",
             "-i",  # read script from stdin
             "citadel-sandbox",
             "python", "-c", script,
@@ -52,13 +69,21 @@ async def execute_code(args: dict[str, Any], context: ToolContext) -> ToolResult
         stdout, stderr = await asyncio.wait_for(
             proc.communicate(), timeout=timeout
         )
-    except FileNotFoundError:
-        # Docker not available — fallback to direct python
-        logger.warning("Docker not available — running code in UNSANDBOXED fallback mode")
+        
+        # Check if Docker failed due to missing image or daemon issues rather than script errors
+        err_str = stderr.decode("utf-8", errors="replace") if stderr else ""
+        if proc.returncode != 0 and ("Unable to find image" in err_str or "error during connect" in err_str or "docker" in err_str.lower()):
+            raise RuntimeError(f"Docker execution failed: {err_str}")
+            
+    except Exception as e:
+        # Docker not available or image missing — fallback to direct python
+        logger.warning(f"Sandbox unavailable ({e}) — running code in UNSANDBOXED fallback mode")
+        import sys
         proc = await asyncio.create_subprocess_exec(
-            "python", "-c", script,
+            sys.executable, "-c", script,
             stdout=asyncio.subprocess.PIPE,
             stderr=asyncio.subprocess.PIPE,
+            cwd=os.path.abspath(context.uploads_dir)
         )
         stdout, stderr = await asyncio.wait_for(
             proc.communicate(), timeout=timeout
@@ -110,12 +135,8 @@ async def search_knowledge_base(args: dict[str, Any], context: ToolContext) -> T
         # Embed the query
         query_embedding = await context.ollama.embed(embed_model.ollama_tag, query)
 
-        # Query ChromaDB — collection name must match chroma.py's CHROMA_COLLECTION_NAME
-        client = chromadb.PersistentClient(path=context.settings.chroma_dir)
-        collection = client.get_or_create_collection(
-            name="citadel_kb",
-            metadata={"hnsw:space": "cosine"}
-        )
+        # Query ChromaDB using the central service to avoid PersistentClient conflicts
+        collection = chroma.get_collection()
 
         if collection.count() == 0:
             return ToolResult(
@@ -183,16 +204,25 @@ def _sync_read_document(full_path: str, ext: str) -> str:
             return f.read()
 
 async def read_document(args: dict[str, Any], context: ToolContext) -> ToolResult:
-    file_path = args.get("file_path", "")
+    file_path = args.get("file_path") or args.get("document_path") or args.get("path", "")
     if not file_path:
-        return ToolResult(tool="read_document", result="Error: no file_path provided", success=False)
+        return ToolResult(tool="read_document", result="Error: no file_path provided. Make sure to pass the 'file_path' argument.", success=False)
 
     # Resolve to session uploads directory (prevent path traversal)
     base_name = os.path.basename(file_path)
     full_path = os.path.normpath(os.path.join(context.uploads_dir, base_name))
     
-    # Ensure it's still inside uploads_dir (note: os.path.basename already neutralizes traversal, this is defense-in-depth against symlinks)
-    if not full_path.startswith(os.path.normpath(context.uploads_dir)):
+    # If not found in uploads, check the Knowledge Base directory
+    if not os.path.exists(full_path):
+        kb_path = os.path.normpath(os.path.join(context.settings.kb_dir, base_name))
+        if os.path.exists(kb_path):
+            full_path = kb_path
+    
+    # Ensure it's safely within one of our permitted directories
+    is_in_uploads = full_path.startswith(os.path.normpath(context.uploads_dir))
+    is_in_kb = full_path.startswith(os.path.normpath(context.settings.kb_dir))
+    
+    if not (is_in_uploads or is_in_kb):
         return ToolResult(tool="read_document", result="Error: invalid file path", success=False)
 
     if not os.path.exists(full_path):

@@ -1,7 +1,8 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import DocumentViewer from '../components/DocumentViewer';
 import MarkdownRenderer from '../components/MarkdownRenderer';
 import WorkspaceAssets from './WorkspaceAssets';
+import { fetchNetworkStatus } from '../services/api';
 import {
   Paperclip,
   X,
@@ -35,7 +36,16 @@ export default function WorkspacePane({
   const [selectedModel, setSelectedModel] = useState('auto');
   const [attachment, setAttachment] = useState(null);
   const [uploadError, setUploadError] = useState('');
+  const [networkStatus, setNetworkStatus] = useState(null);
   const fileInputRef = useRef(null);
+
+  useEffect(() => {
+    fetchNetworkStatus().then(data => setNetworkStatus(data)).catch(() => {});
+    const interval = setInterval(() => {
+      fetchNetworkStatus().then(data => setNetworkStatus(data)).catch(() => {});
+    }, 10000);
+    return () => clearInterval(interval);
+  }, []);
 
   const availableOperations = [
     {
@@ -268,9 +278,6 @@ export default function WorkspacePane({
                 }}>
                   QUERY EXECUTION // {queryData.timestamp || 'ACTIVE'}
                 </div>
-                <span className="status-tag-amber">
-                  CONFIDENCE: 98.4%
-                </span>
               </div>
               <div style={{ fontFamily: 'var(--font-display)', fontSize: '14.5px', fontWeight: 600, color: 'var(--text-main)' }}>
                 &ldquo;{queryData.userPrompt}&rdquo;
@@ -531,7 +538,7 @@ export default function WorkspacePane({
           color: 'var(--text-dim)'
         }}>
           <div style={{ display: 'flex', gap: '14px' }}>
-            <span>LOCAL MODEL: <strong style={{ color: 'var(--text-secondary)' }}>AUTO (PHI-3.5)</strong></span>
+            <span>LOCAL MODEL: <strong style={{ color: 'var(--text-secondary)' }}>AUTO ({networkStatus?.active_model ? networkStatus.active_model.toUpperCase() : 'PHI-3.5'})</strong></span>
             <span>ROUTER: <strong style={{ color: 'var(--text-secondary)' }}>ACTIVE</strong></span>
             <span>SANDBOX: <strong style={{ color: 'var(--accent-amber)' }}>AVAILABLE</strong></span>
           </div>

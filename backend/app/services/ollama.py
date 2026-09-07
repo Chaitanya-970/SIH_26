@@ -39,12 +39,17 @@ class OllamaClient:
         images: Optional[List[str]] = None, num_ctx: int = 4096
     ) -> AsyncGenerator[str, None]:
         """Yields raw text tokens as they arrive from Ollama."""
+        options = {"num_ctx": num_ctx}
+        if "moondream" in model.lower():
+            options["repeat_penalty"] = 1.1
+            options["temperature"] = 0.1
+
         payload = {
             "model": model,
             "prompt": prompt,
             "system": system,
             "stream": True,
-            "options": {"num_ctx": num_ctx},
+            "options": options,
         }
         if images:
             payload["images"] = images

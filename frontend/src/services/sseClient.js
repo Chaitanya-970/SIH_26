@@ -33,20 +33,33 @@ export async function streamChat({
   const validSessionId = normalizeSessionId(sessionId);
 
   try {
-    const response = await fetch('/api/chat', {
+    let fetchOptions = {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json',
         'Accept': 'text/event-stream'
       },
-      body: JSON.stringify({
+      signal: abortSignal
+    };
+
+    if (attachment) {
+      const formData = new FormData();
+      formData.append('session_id', validSessionId);
+      formData.append('message', message);
+      if (modelOverride && modelOverride !== 'auto') {
+        formData.append('model_override', modelOverride);
+      }
+      formData.append('attachment', attachment);
+      fetchOptions.body = formData;
+    } else {
+      fetchOptions.headers['Content-Type'] = 'application/json';
+      fetchOptions.body = JSON.stringify({
         session_id: validSessionId,
         message,
-        model_override: modelOverride === 'auto' ? null : modelOverride,
-        attachment: attachment ? { name: attachment.name, size: attachment.size } : null
-      }),
-      signal: abortSignal
-    });
+        model_override: modelOverride === 'auto' ? null : modelOverride
+      });
+    }
+
+    const response = await fetch('/api/chat', fetchOptions);
 
     if (!response.ok) {
       throw new Error(`Server returned ${response.status}`);

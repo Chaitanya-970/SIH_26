@@ -43,23 +43,58 @@ def find_json_blocks(text: str) -> list[str]:
                         blocks.append(text[start:i+1])
     return blocks
 
+import ast
+
 def _attempt_json_repair(raw: str) -> dict | None:
     """
-    Attempt basic repairs on malformed JSON from LLM output:
-    - Single quotes → double quotes
-    - Trailing commas
-    - Unquoted keys
+    Attempt repairs on malformed JSON from LLM output:
+    - Escaping unescaped newlines/tabs inside strings
+    - Removing trailing commas
+    - Fallback to ast.literal_eval for single-quoted output
     """
-    # Replace single quotes with double quotes
-    repaired = raw.replace("'", '"')
-
-    # Remove trailing commas before closing braces/brackets
+    # 1. Escape control characters inside string literals
+    repaired_chars = []
+    in_string = False
+    escape = False
+    for char in raw:
+        if escape:
+            repaired_chars.append(char)
+            escape = False
+        elif char == '\\':
+            repaired_chars.append(char)
+            escape = True
+        elif char == '"':
+            in_string = not in_string
+            repaired_chars.append(char)
+        elif in_string and char == '\n':
+            repaired_chars.extend(['\\', 'n'])
+        elif in_string and char == '\r':
+            repaired_chars.extend(['\\', 'r'])
+        elif in_string and char == '\t':
+            repaired_chars.extend(['\\', 't'])
+        else:
+            repaired_chars.append(char)
+            
+    repaired = "".join(repaired_chars)
+    
+    # 2. Remove trailing commas before closing braces/brackets
     repaired = re.sub(r',\s*([}\]])', r'\1', repaired)
 
     try:
         return json.loads(repaired)
     except json.JSONDecodeError:
-        return None
+        pass
+
+    # 3. Fallback: Try ast.literal_eval for single-quoted dicts
+    python_str = raw.replace('true', 'True').replace('false', 'False').replace('null', 'None')
+    try:
+        parsed = ast.literal_eval(python_str)
+        if isinstance(parsed, dict):
+            return parsed
+    except Exception:
+        pass
+
+    return None
 
 def parse_tool_call(text: str) -> ToolCall | None:
     """
