@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { RECENT_WORK_ITEMS } from '../services/mockData';
+import { fetchRecentAnalyses, fetchNetworkStatus } from '../services/api';
 import FloatingLines from '../components/FloatingLines';
 import WireframeBall from '../components/WireframeBall';
 import {
@@ -24,7 +24,7 @@ import Footer from '../components/Footer';
 const FLOATING_LINES_WAVES = ['top', 'bottom'];
 const FLOATING_LINES_COUNT = [10, 15, 20];
 const FLOATING_LINES_DISTANCE = [8, 6, 4];
-const FLOATING_LINES_GRADIENT = ['#1e293b', '#334155', '#b6d83a'];
+const FLOATING_LINES_GRADIENT = ['#0284c7', '#0ea5e9', '#fbbf24', '#f59e0b'];
 
 export default function Dashboard({
   user,
@@ -38,8 +38,13 @@ export default function Dashboard({
 
   // Dynamic Live Timestamp
   const [currentDateTime, setCurrentDateTime] = useState('');
+  const [recentWorkItems, setRecentWorkItems] = useState([]);
+  const [networkStatus, setNetworkStatus] = useState(null);
 
   useEffect(() => {
+    fetchRecentAnalyses().then(data => setRecentWorkItems(data || [])).catch(() => setRecentWorkItems([]));
+    fetchNetworkStatus().then(data => setNetworkStatus(data)).catch(() => setNetworkStatus(null));
+    
     const updateTime = () => {
       const now = new Date();
       const monthNames = [
@@ -74,13 +79,13 @@ export default function Dashboard({
           <span style={{
             fontFamily: 'var(--font-mono)',
             fontSize: '10px',
-            color: 'var(--accent-lemongrass)',
+            color: 'var(--accent-orange)',
             display: 'inline-flex',
             alignItems: 'center',
             gap: '4px'
           }}>
             <span>Verified</span>
-            <span className="pulse-dot anim-checkmark-pop" style={{ width: '4px', height: '4px' }} />
+            <span className="pulse-dot-amber anim-checkmark-pop" style={{ width: '4px', height: '4px' }} />
           </span>
         );
       case 'RUNNING':
@@ -148,7 +153,7 @@ export default function Dashboard({
         width: '100%',
         height: '100%',
         pointerEvents: 'none',
-        opacity: 0.32,
+        opacity: 0.22,
         zIndex: 0,
         overflow: 'hidden'
       }}>
@@ -162,6 +167,9 @@ export default function Dashboard({
           parallax={true}
           linesGradient={FLOATING_LINES_GRADIENT}
           animationSpeed={0.8}
+          lightMode={true}
+          backgroundColor="#f4f6f8"
+          mixBlendMode="multiply"
         />
       </div>
 
@@ -278,13 +286,13 @@ export default function Dashboard({
             </div>
           </div>
 
-          {/* Right: Subdued Ambient 3D Network Ball with CSS-driven hover brightening */}
+          {/* Right: Ambient 3D Network Ball with Subtle Muted Blue to Warm Amber Gradient */}
           <div className="wireframe-ball-container">
             <WireframeBall
-              color="#98b934"
-              secondaryColor="#62781e"
-              size={150}
-              speed={0.8}
+              color="#0284c7"
+              secondaryColor="#d97706"
+              size={145}
+              speed={0.65}
               opacity={0.38}
             />
           </div>
@@ -324,7 +332,7 @@ export default function Dashboard({
           </div>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-            {RECENT_WORK_ITEMS.map((item, idx) => (
+            {recentWorkItems.map((item, idx) => (
               <div
                 key={item.id}
                 onClick={() => onSelectRecentWork(item)}
@@ -430,7 +438,8 @@ export default function Dashboard({
             padding: '16px 20px',
             display: 'flex',
             flexDirection: 'column',
-            justifyContent: 'space-between'
+            justifyContent: 'space-between',
+            boxShadow: 'var(--shadow-box)'
           }}>
             <div>
               <div style={{
@@ -446,12 +455,12 @@ export default function Dashboard({
                 <span style={{
                   fontFamily: 'var(--font-mono)',
                   fontSize: '10px',
-                  color: 'var(--accent-lemongrass)',
+                  color: 'var(--accent-orange)',
                   display: 'flex',
                   alignItems: 'center',
                   gap: '4px'
                 }}>
-                  <span className="pulse-dot" style={{ width: '4px', height: '4px' }} />
+                  <span className="pulse-dot-amber" style={{ width: '4px', height: '4px' }} />
                   <span>Index Ready</span>
                 </span>
               </div>
@@ -460,15 +469,15 @@ export default function Dashboard({
               <div style={{ display: 'flex', gap: '24px', marginBottom: '12px' }}>
                 <div>
                   <div style={{ fontFamily: 'var(--font-mono)', fontSize: '18px', fontWeight: 700, color: 'var(--text-main)' }}>
-                    247
+                    {networkStatus?.knowledge_base?.documents || 0}
                   </div>
                   <div style={{ fontSize: '10px', color: 'var(--text-dim)', fontFamily: 'var(--font-mono)' }}>
                     Documents
                   </div>
                 </div>
                 <div style={{ borderLeft: '1px solid var(--border-subtle)', paddingLeft: '20px' }}>
-                  <div style={{ fontFamily: 'var(--font-mono)', fontSize: '18px', fontWeight: 700, color: 'var(--text-main)' }}>
-                    12,482
+                  <div style={{ fontFamily: 'var(--font-mono)', fontSize: '18px', fontWeight: 700, color: 'var(--accent-orange)' }}>
+                    {networkStatus?.knowledge_base?.pages_indexed || 0}
                   </div>
                   <div style={{ fontSize: '10px', color: 'var(--text-dim)', fontFamily: 'var(--font-mono)' }}>
                     Pages Indexed
@@ -484,7 +493,7 @@ export default function Dashboard({
                 fontFamily: 'var(--font-mono)',
                 fontSize: '10.5px',
                 padding: '6px 8px',
-                background: 'rgba(0, 0, 0, 0.3)',
+                background: 'var(--bg-elevated)',
                 border: '1px solid var(--border-subtle)',
                 borderRadius: 'var(--radius-xs)',
                 marginBottom: '12px'
@@ -521,7 +530,8 @@ export default function Dashboard({
             padding: '16px 20px',
             display: 'flex',
             flexDirection: 'column',
-            justifyContent: 'space-between'
+            justifyContent: 'space-between',
+            boxShadow: 'var(--shadow-box)'
           }}>
             <div>
               <div style={{
@@ -551,20 +561,20 @@ export default function Dashboard({
                 flexDirection: 'column',
                 gap: '7px',
                 padding: '8px 10px',
-                background: 'rgba(0, 0, 0, 0.3)',
+                background: 'var(--bg-elevated)',
                 border: '1px solid var(--border-subtle)',
                 borderRadius: 'var(--radius-xs)',
                 marginBottom: '12px'
               }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <span style={{ color: 'var(--text-dim)' }}>Local Model</span>
-                  <span style={{ color: 'var(--text-main)' }}>Phi-3.5 (3.8B)</span>
+                  <span style={{ color: 'var(--text-main)' }}>{networkStatus?.active_model || 'Unknown'}</span>
                   <span style={{ color: 'var(--accent-lemongrass)', fontSize: '10px' }}>● Ready</span>
                 </div>
 
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <span style={{ color: 'var(--text-dim)' }}>Agents</span>
-                  <span style={{ color: 'var(--text-main)' }}>3 Active</span>
+                  <span style={{ color: 'var(--text-main)' }}>{networkStatus?.active_agents || 0} Active</span>
                   <span style={{ color: 'var(--accent-lemongrass)', fontSize: '10px' }}>● Ready</span>
                 </div>
 
@@ -576,8 +586,8 @@ export default function Dashboard({
 
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                   <span style={{ color: 'var(--text-dim)' }}>Network</span>
-                  <span style={{ color: 'var(--text-main)' }}>Air-gapped</span>
-                  <span style={{ color: 'var(--accent-lemongrass)', fontSize: '10px' }}>● Enforced</span>
+                  <span style={{ color: 'var(--text-main)' }}>{networkStatus?.network_mode || 'Air-gapped'}</span>
+                  <span style={{ color: 'var(--accent-orange)', fontSize: '10px' }}>● Enforced</span>
                 </div>
               </div>
             </div>
@@ -600,8 +610,11 @@ export default function Dashboard({
 
         {/* 5. COMPACT INDUSTRIAL FOOTER */}
         <Footer onNavigate={onNavigate || ((page) => {
-          if (page === 'workspace') onOpenWorkspace && onOpenWorkspace();
-          else if (page === 'kb') onOpenKnowledge && onOpenKnowledge();
+          if (page === 'workspace' && onOpenWorkspace) {
+            onOpenWorkspace();
+          } else if (page === 'kb' && onOpenKnowledge) {
+            onOpenKnowledge();
+          }
         })} />
 
       </div>

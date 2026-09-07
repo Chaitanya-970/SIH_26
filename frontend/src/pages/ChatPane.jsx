@@ -582,7 +582,7 @@ export default function ChatPane({
                 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                     <AlertTriangle size={15} style={{ color: 'var(--status-rose)' }} />
-                    <span style={{ fontFamily: 'var(--font-mono)', fontSize: '11.5px', color: '#fda4af' }}>
+                    <span style={{ fontFamily: 'var(--font-mono)', fontSize: '11.5px', color: '#b91c1c' }}>
                       {msg.error.message}
                     </span>
                   </div>
@@ -607,10 +607,10 @@ export default function ChatPane({
       {/* Upload Error Banner */}
       {uploadError && (
         <div style={{
-          background: '#240a0f',
+          background: 'rgba(244, 63, 94, 0.1)',
           borderTop: '1px solid var(--status-rose)',
           padding: '6px 16px',
-          color: '#fda4af',
+          color: '#b91c1c',
           fontFamily: 'var(--font-mono)',
           fontSize: '11px',
           display: 'flex',
@@ -620,7 +620,7 @@ export default function ChatPane({
           <span>{uploadError}</span>
           <button
             onClick={() => setUploadError('')}
-            style={{ background: 'transparent', border: 'none', color: '#fda4af', cursor: 'pointer' }}
+            style={{ background: 'transparent', border: 'none', color: '#b91c1c', cursor: 'pointer' }}
           >
             <X size={13} />
           </button>

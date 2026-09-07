@@ -3,7 +3,7 @@ import React from 'react';
 /**
  * ArchitectureSchematic - Technical Local Intelligence Architecture Visualization
  * Represents the sovereign engineering dataflow:
- * DOCUMENTS -> PAGEINDEX -> AGENT ROUTER -> [DOC | VISION | DATA] -> VERIFIER -> LOCAL LLM
+ * DOCUMENTS -> RAG SYSTEM -> AGENT ROUTER -> [DOC | VISION | DATA] -> VERIFIER -> LOCAL LLM
  * Features crisp engineering schematic layout with subtle status signals.
  */
 export default function ArchitectureSchematic() {
@@ -75,7 +75,7 @@ export default function ArchitectureSchematic() {
         {/* Connector */}
         <div style={{ color: 'var(--text-dim)', fontSize: '11px', lineHeight: 1 }}>↓</div>
 
-        {/* Node 2: PAGEINDEX */}
+        {/* Node 2: RAG SYSTEM */}
         <div style={{
           padding: '4px 18px',
           background: 'rgba(182, 216, 58, 0.08)',
@@ -85,7 +85,7 @@ export default function ArchitectureSchematic() {
           fontWeight: 600,
           letterSpacing: '0.06em'
         }}>
-          PAGEINDEX
+          RAG SYSTEM
         </div>
 
         {/* Connector */}

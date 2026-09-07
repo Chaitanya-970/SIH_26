@@ -16,13 +16,13 @@ export default function WorkspaceAssets({
       case 'docx':
       case 'pptx':
       case 'pdf':
-        return <FileText size={14} style={{ color: '#c084fc' }} />;
+        return <FileText size={14} style={{ color: 'var(--accent-blue)' }} />;
       case 'py':
       case 'sh':
-        return <Code2 size={14} style={{ color: '#38bdf8' }} />;
+        return <Code2 size={14} style={{ color: '#0ea5e9' }} />;
       case 'xlsx':
       case 'csv':
-        return <Table size={14} style={{ color: 'var(--accent-lemongrass)' }} />;
+        return <Table size={14} style={{ color: 'var(--accent-orange)' }} />;
       default:
         return <FileText size={14} style={{ color: '#94a3b8' }} />;
     }
@@ -35,8 +35,7 @@ export default function WorkspaceAssets({
 
   return (
     <div style={{
-      background: 'rgba(12, 16, 23, 0.75)',
-      backdropFilter: 'blur(16px)',
+      background: 'var(--bg-panel)',
       borderBottom: '1px solid var(--border-subtle)',
       padding: '8px 20px'
     }}>
@@ -49,11 +48,11 @@ export default function WorkspaceAssets({
         color: 'var(--text-muted)'
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-          <FolderArchive size={14} style={{ color: 'var(--accent-lemongrass)' }} />
-          <span style={{ fontWeight: 600, letterSpacing: '0.02em', color: '#e2e8f0' }}>SESSION DELIVERABLES</span>
+          <FolderArchive size={14} style={{ color: 'var(--accent-orange)' }} />
+          <span style={{ fontWeight: 600, letterSpacing: '0.02em', color: 'var(--text-main)' }}>SESSION DELIVERABLES</span>
           <span className="pill-badge" style={{ padding: '1px 6px', fontSize: '9.5px' }}>{files.length}</span>
         </div>
-        <span style={{ fontSize: '10.5px', color: 'var(--accent-lemongrass)', fontWeight: 500 }}>
+        <span style={{ fontSize: '10.5px', color: 'var(--accent-orange)', fontWeight: 500 }}>
           Export Ready
         </span>
       </div>
@@ -80,8 +79,8 @@ export default function WorkspaceAssets({
                   display: 'flex',
                   alignItems: 'center',
                   gap: '8px',
-                  background: isSelected ? 'rgba(163, 230, 53, 0.12)' : 'rgba(255, 255, 255, 0.03)',
-                  border: isSelected ? '1px solid rgba(163, 230, 53, 0.45)' : '1px solid var(--border-subtle)',
+                  background: isSelected ? 'rgba(234, 88, 12, 0.08)' : 'var(--bg-surface)',
+                  border: isSelected ? '1px solid var(--accent-orange)' : '1px solid var(--border-subtle)',
                   borderRadius: 'var(--radius-md)',
                   padding: '4px 10px',
                   cursor: 'pointer',
@@ -92,7 +91,7 @@ export default function WorkspaceAssets({
                 }}
               >
                 {getFileIcon(file.type)}
-                <span style={{ color: isSelected ? '#fff' : '#cbd5e1', fontWeight: isSelected ? 600 : 400 }}>
+                <span style={{ color: isSelected ? 'var(--text-main)' : 'var(--text-secondary)', fontWeight: isSelected ? 600 : 400 }}>
                   {file.name}
                 </span>
                 <span style={{ fontSize: '10px', color: 'var(--text-dim)' }}>

@@ -84,12 +84,12 @@ export default function OperatorDropdown({
             width: '28px',
             height: '28px',
             borderRadius: 'var(--radius-xs)',
-            background: 'rgba(182, 216, 58, 0.08)',
-            border: '1px solid rgba(182, 216, 58, 0.28)',
+            background: 'rgba(234, 88, 12, 0.08)',
+            border: '1px solid rgba(234, 88, 12, 0.28)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            color: 'var(--accent-lemongrass)',
+            color: 'var(--accent-orange)',
             fontFamily: 'var(--font-mono)',
             fontSize: '11px',
             fontWeight: 700,
@@ -174,12 +174,12 @@ export default function OperatorDropdown({
                     width: '22px',
                     height: '22px',
                     borderRadius: 'var(--radius-xs)',
-                    background: isSelected ? 'rgba(182, 216, 58, 0.08)' : 'var(--bg-elevated)',
-                    border: isSelected ? '1px solid rgba(182, 216, 58, 0.3)' : '1px solid var(--border-subtle)',
+                    background: isSelected ? 'rgba(234, 88, 12, 0.08)' : 'var(--bg-elevated)',
+                    border: isSelected ? '1px solid rgba(234, 88, 12, 0.3)' : '1px solid var(--border-subtle)',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center',
-                    color: isSelected ? 'var(--accent-lemongrass)' : 'var(--text-secondary)',
+                    color: isSelected ? 'var(--accent-orange)' : 'var(--text-secondary)',
                     fontFamily: 'var(--font-mono)',
                     fontSize: '9.5px',
                     fontWeight: 700,
@@ -207,7 +207,7 @@ export default function OperatorDropdown({
                 </div>
 
                 {isSelected && (
-                  <Check size={13} className="anim-checkmark-pop" style={{ color: 'var(--accent-lemongrass)', flexShrink: 0 }} />
+                  <Check size={13} className="anim-checkmark-pop" style={{ color: 'var(--accent-orange)', flexShrink: 0 }} />
                 )}
               </div>
             );
@@ -221,7 +221,7 @@ export default function OperatorDropdown({
       {/* 3. Footer */}
       <div style={{
         padding: '7px 14px',
-        background: 'rgba(0, 0, 0, 0.25)',
+        background: 'var(--bg-elevated)',
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',

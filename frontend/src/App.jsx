@@ -8,7 +8,7 @@ import KnowledgeBase from './pages/KnowledgeBase';
 /**
  * App - Root Application Shell
  * Manages 3 primary engineering pages: Dashboard (launchpad), Workspace (flagship 3-pane),
- * and Knowledge Base (PageIndex repository), plus Air-Gap persistent telemetry and operator persona state.
+ * and Knowledge Base (Document repository), plus Air-Gap persistent telemetry and operator persona state.
  */
 export default function App() {
   const [activePage, setActivePage] = useState('dashboard'); // 'dashboard' | 'workspace' | 'kb'
@@ -52,7 +52,7 @@ export default function App() {
       title: doc.name,
       documentName: doc.name,
       page: 1,
-      meta: 'PageIndex query launch',
+      meta: 'RAG query launch',
       sources: [{ documentName: doc.name, page: 1, section: 'Section 1' }]
     });
     setActivePage('workspace');

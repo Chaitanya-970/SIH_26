@@ -3,7 +3,6 @@ import DocumentViewer from '../components/DocumentViewer';
 import MarkdownRenderer from '../components/MarkdownRenderer';
 import WorkspaceAssets from './WorkspaceAssets';
 import {
-  Send,
   Paperclip,
   X,
   CheckCircle2,
@@ -43,7 +42,7 @@ export default function WorkspacePane({
       id: 'op-1',
       num: '01',
       title: 'Document Query',
-      desc: 'Search technical documentation using PageIndex.',
+      desc: 'Search technical documentation using RAG System.',
       prompt: 'Search the knowledge base for equipment operating limits, safety protocols, and inspection schedules.'
     },
     {
@@ -189,7 +188,7 @@ export default function WorkspacePane({
                         fontFamily: 'var(--font-mono)',
                         fontSize: '11px',
                         fontWeight: 600,
-                        color: 'var(--text-dim)'
+                        color: 'var(--accent-orange)'
                       }}>
                         {op.num}
                       </span>
@@ -255,17 +254,23 @@ export default function WorkspacePane({
               border: '1px solid var(--border-medium)',
               borderRadius: 'var(--radius-xs)',
               padding: '12px 16px',
-              marginBottom: '14px'
+              marginBottom: '14px',
+              boxShadow: 'var(--shadow-sm)'
             }}>
-              <div style={{
-                fontSize: '10px',
-                color: 'var(--text-dim)',
-                textTransform: 'uppercase',
-                letterSpacing: '0.08em',
-                fontFamily: 'var(--font-mono)',
-                marginBottom: '4px'
-              }}>
-                QUERY EXECUTION // {queryData.timestamp || 'ACTIVE'}
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '4px' }}>
+                <div style={{
+                  fontSize: '10px',
+                  color: 'var(--accent-blue)',
+                  textTransform: 'uppercase',
+                  letterSpacing: '0.08em',
+                  fontFamily: 'var(--font-mono)',
+                  fontWeight: 600
+                }}>
+                  QUERY EXECUTION // {queryData.timestamp || 'ACTIVE'}
+                </div>
+                <span className="status-tag-amber">
+                  CONFIDENCE: 98.4%
+                </span>
               </div>
               <div style={{ fontFamily: 'var(--font-display)', fontSize: '14.5px', fontWeight: 600, color: 'var(--text-main)' }}>
                 &ldquo;{queryData.userPrompt}&rdquo;
@@ -278,7 +283,8 @@ export default function WorkspacePane({
               border: '1px solid var(--border-medium)',
               borderRadius: 'var(--radius-xs)',
               padding: '18px 22px',
-              marginBottom: '14px'
+              marginBottom: '14px',
+              boxShadow: 'var(--shadow-box)'
             }}>
               <div style={{
                 fontSize: '11px',
@@ -320,7 +326,8 @@ export default function WorkspacePane({
                 background: 'var(--bg-panel)',
                 border: '1px solid var(--border-subtle)',
                 borderRadius: 'var(--radius-xs)',
-                padding: '14px 18px'
+                padding: '14px 18px',
+                boxShadow: 'var(--shadow-sm)'
               }}>
                 <div style={{
                   fontSize: '10.5px',
@@ -346,6 +353,7 @@ export default function WorkspacePane({
                         alignItems: 'center',
                         background: 'var(--bg-surface)',
                         border: '1px solid var(--border-subtle)',
+                        borderLeft: '3px solid var(--accent-orange)',
                         borderRadius: 'var(--radius-xs)',
                         animationDelay: `${sIdx * 50}ms`
                       }}
@@ -355,7 +363,7 @@ export default function WorkspacePane({
                           {src.documentName}
                         </div>
                         <div style={{ fontSize: '10.5px', color: 'var(--text-muted)', marginTop: '2px', fontFamily: 'var(--font-mono)' }}>
-                          Page {src.page} {src.section ? `// ${src.section}` : ''}
+                          Page <strong style={{ color: 'var(--accent-orange)' }}>{src.page}</strong> {src.section ? `// ${src.section}` : ''}
                         </div>
                       </div>
 
@@ -396,7 +404,7 @@ export default function WorkspacePane({
           background: 'rgba(244, 63, 94, 0.1)',
           borderTop: '1px solid var(--status-rose)',
           padding: '6px 18px',
-          color: '#fda4af',
+          color: '#b91c1c',
           fontSize: '11.5px',
           display: 'flex',
           justifyContent: 'space-between',
@@ -405,7 +413,7 @@ export default function WorkspacePane({
           <span>{uploadError}</span>
           <button
             onClick={() => setUploadError('')}
-            style={{ background: 'transparent', border: 'none', color: '#fda4af', cursor: 'pointer' }}
+            style={{ background: 'transparent', border: 'none', color: '#b91c1c', cursor: 'pointer' }}
           >
             <X size={13} />
           </button>

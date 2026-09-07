@@ -51,7 +51,8 @@ export default function Footer({ onNavigate }) {
         borderRadius: 'var(--radius-xs)',
         padding: '24px 28px 16px',
         userSelect: 'none',
-        position: 'relative'
+        position: 'relative',
+        boxShadow: 'var(--shadow-box)'
       }}>
         {/* Main 4-Column Grid */}
         <div style={{
@@ -71,12 +72,12 @@ export default function Footer({ onNavigate }) {
                 width: '26px',
                 height: '26px',
                 borderRadius: 'var(--radius-xs)',
-                background: 'rgba(182, 216, 58, 0.08)',
-                border: '1px solid rgba(182, 216, 58, 0.28)',
+                background: 'var(--accent-blue-subtle)',
+                border: '1px solid rgba(2, 132, 199, 0.28)',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                color: 'var(--accent-lemongrass)',
+                color: 'var(--accent-blue)',
                 flexShrink: 0
               }}>
                 <Layers size={15} strokeWidth={2.2} />
@@ -101,13 +102,10 @@ export default function Footer({ onNavigate }) {
               Sovereign Industrial AI
             </div>
 
-            <div style={{
-              fontFamily: 'var(--font-mono)',
-              fontSize: '10px',
-              color: 'var(--text-dim)',
-              letterSpacing: '0.06em'
-            }}>
-              MRPL // ON-PREMISE
+            <div>
+              <span className="status-tag-amber" style={{ fontSize: '9px', padding: '1px 6px' }}>
+                MRPL // ON-PREMISE
+              </span>
             </div>
           </div>
 
@@ -326,10 +324,10 @@ export default function Footer({ onNavigate }) {
 
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                 <span style={{ display: 'flex', alignItems: 'center', gap: '6px', color: 'var(--text-secondary)' }}>
-                  <span className="pulse-dot" style={{ width: '4px', height: '4px' }} />
+                  <span className="pulse-dot-amber" style={{ width: '4px', height: '4px' }} />
                   <span>NETWORK</span>
                 </span>
-                <span style={{ color: 'var(--accent-lemongrass)', fontWeight: 600 }}>AIR-GAPPED</span>
+                <span style={{ color: 'var(--accent-orange)', fontWeight: 600 }}>AIR-GAPPED</span>
               </div>
             </div>
           </div>
@@ -396,12 +394,12 @@ export default function Footer({ onNavigate }) {
                   width: '26px',
                   height: '26px',
                   borderRadius: 'var(--radius-xs)',
-                  background: 'rgba(182, 216, 58, 0.08)',
-                  border: '1px solid rgba(182, 216, 58, 0.28)',
+                  background: 'var(--accent-orange-subtle)',
+                  border: '1px solid rgba(245, 158, 11, 0.28)',
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
-                  color: 'var(--accent-lemongrass)',
+                  color: 'var(--accent-orange)',
                   fontFamily: 'var(--font-mono)',
                   fontSize: '10.5px',
                   fontWeight: 700,
@@ -457,7 +455,7 @@ export default function Footer({ onNavigate }) {
             <div>
               <strong style={{ color: 'var(--text-main)' }}>Zero External Dependencies:</strong>
               <p style={{ margin: '4px 0 0' }}>
-                Inference runs over local Ollama IPC channels (`phi3.5:3.8b` / `granite3.2`). The PageIndex document hierarchy and vector store reside completely on internal disk.
+                Inference runs over local Ollama IPC channels (`phi3.5:3.8b` / `granite3.2`). The RAG document hierarchy and vector store reside completely on internal disk.
               </p>
             </div>
 
@@ -489,7 +487,7 @@ export default function Footer({ onNavigate }) {
               <strong style={{ color: 'var(--text-main)' }}>Citadel</strong> is a sovereign industrial intelligence console built for critical infrastructure, refineries, and continuous process plants.
             </p>
             <p style={{ margin: 0 }}>
-              Unlike generic chatbot interfaces, Citadel pairs a 3-stage agentic orchestrator with deep <strong>PageIndex hierarchical tree traversal</strong> to deliver precise technical answers backed by page-level citations.
+              Unlike generic chatbot interfaces, Citadel pairs a 3-stage agentic orchestrator with deep <strong>RAG hierarchical tree traversal</strong> to deliver precise technical answers backed by page-level citations.
             </p>
             <div style={{
               background: 'var(--bg-surface)',
@@ -523,7 +521,7 @@ export default function Footer({ onNavigate }) {
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', fontSize: '12px', color: 'var(--text-secondary)' }}>
             <div style={{ background: 'var(--bg-surface)', border: '1px solid var(--border-subtle)', borderRadius: 'var(--radius-xs)', padding: '10px 12px' }}>
-              <div style={{ fontWeight: 600, color: 'var(--text-main)', marginBottom: '3px' }}>1. PageIndex Tree Traversal</div>
+              <div style={{ fontWeight: 600, color: 'var(--text-main)', marginBottom: '3px' }}>1. RAG Tree Traversal</div>
               <p style={{ margin: 0, lineHeight: 1.5, color: 'var(--text-muted)' }}>
                 Documents are indexed by logical hierarchy (sections, tables, equipment numbers) instead of blind token chunks, preserving technical context.
               </p>
@@ -532,7 +530,7 @@ export default function Footer({ onNavigate }) {
             <div style={{ background: 'var(--bg-surface)', border: '1px solid var(--border-subtle)', borderRadius: 'var(--radius-xs)', padding: '10px 12px' }}>
               <div style={{ fontWeight: 600, color: 'var(--text-main)', marginBottom: '3px' }}>2. 4-Stage Autonomous Pipeline</div>
               <p style={{ margin: 0, lineHeight: 1.5, color: 'var(--text-muted)' }}>
-                Orchestrator decomposes queries &rarr; Document Analyst identifies sources &rarr; PageIndex traverses repository &rarr; Sovereign Verifier validates output.
+                Orchestrator decomposes queries &rarr; Document Analyst identifies sources &rarr; RAG System traverses repository &rarr; Sovereign Verifier validates output.
               </p>
             </div>
 
@@ -604,7 +602,7 @@ function ModalBackdrop({ children, onClose }) {
       style={{
         position: 'fixed',
         inset: 0,
-        background: 'rgba(0, 0, 0, 0.72)',
+        background: 'rgba(0, 0, 0, 0.4)',
         backdropFilter: 'blur(4px)',
         zIndex: 2000,
         display: 'flex',
@@ -652,7 +650,7 @@ function CloseButton({ onClick }) {
         transition: 'all 0.12s ease'
       }}
       onMouseEnter={(e) => {
-        e.currentTarget.style.color = '#fff';
+        e.currentTarget.style.color = 'var(--text-main)';
         e.currentTarget.style.borderColor = 'var(--border-highlight)';
       }}
       onMouseLeave={(e) => {

@@ -54,21 +54,21 @@ function CodeBlock({ code, language }) {
     <div style={{
       margin: '12px 0',
       border: '1px solid var(--border-medium)',
-      background: '#07090c'
+      background: '#f8fafc'
     }}>
       <div style={{
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center',
         padding: '5px 12px',
-        background: '#101419',
+        background: 'var(--bg-elevated)',
         borderBottom: '1px solid var(--border-subtle)',
         fontFamily: 'var(--font-mono)',
         fontSize: '11px',
-        color: '#8b949e'
+        color: 'var(--text-secondary)'
       }}>
         <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-          <Terminal size={12} style={{ color: 'var(--accent-lemongrass)' }} />
+          <Terminal size={12} style={{ color: 'var(--accent-orange)' }} />
           <span>{language ? language.toUpperCase() : 'CODE'}</span>
         </div>
         <button
@@ -76,7 +76,7 @@ function CodeBlock({ code, language }) {
           className="btn-control"
           style={{ padding: '2px 8px', fontSize: '10px', height: '22px' }}
         >
-          {copied ? <Check size={11} style={{ color: 'var(--accent-lemongrass)' }} /> : <Copy size={11} />}
+          {copied ? <Check size={11} style={{ color: 'var(--accent-orange)' }} /> : <Copy size={11} />}
           {copied ? 'COPIED' : 'COPY'}
         </button>
       </div>
@@ -87,7 +87,7 @@ function CodeBlock({ code, language }) {
         fontSize: '12px',
         lineHeight: '1.5',
         overflowX: 'auto',
-        color: '#e6edf3',
+        color: 'var(--text-main)',
         background: 'transparent'
       }}>
         <code>{code}</code>
@@ -128,7 +128,7 @@ function MarkdownText({ text }) {
             <thead>
               <tr style={{ background: 'var(--bg-elevated)', borderBottom: '1px solid var(--border-medium)' }}>
                 {headerRow.map((cell, cIdx) => (
-                  <th key={cIdx} style={{ padding: '6px 10px', textAlign: 'left', color: 'var(--accent-lemongrass)' }}>
+                  <th key={cIdx} style={{ padding: '6px 10px', textAlign: 'left', color: 'var(--accent-orange)' }}>
                     <InlineFormatting text={cell.trim()} />
                   </th>
                 ))}
@@ -235,7 +235,7 @@ function InlineFormatting({ text }) {
               background: 'var(--bg-elevated)',
               padding: '1px 5px',
               border: '1px solid var(--border-medium)',
-              color: 'var(--accent-lemongrass)',
+              color: 'var(--accent-orange)',
               fontFamily: 'var(--font-mono)',
               fontSize: '11.5px'
             }}>
@@ -250,7 +250,7 @@ function InlineFormatting({ text }) {
           <span key={i}>
             {boldParts.map((bp, bIdx) => {
               if (bp.startsWith('**') && bp.endsWith('**')) {
-                return <strong key={bIdx} style={{ color: '#fff' }}>{bp.slice(2, -2)}</strong>;
+                return <strong key={bIdx} style={{ color: 'var(--text-main)' }}>{bp.slice(2, -2)}</strong>;
               }
               return bp;
             })}

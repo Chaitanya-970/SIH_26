@@ -32,7 +32,7 @@ export default function ModelSelector({ selectedModel, onSelectModel, disabled =
       <div style={{
         display: 'flex',
         alignItems: 'center',
-        background: 'rgba(255, 255, 255, 0.04)',
+        background: 'var(--bg-elevated)',
         border: '1px solid var(--border-medium)',
         borderRadius: 'var(--radius-md)',
         padding: '0 10px 0 8px',
@@ -41,11 +41,10 @@ export default function ModelSelector({ selectedModel, onSelectModel, disabled =
         fontSize: '11.5px',
         gap: '7px',
         backdropFilter: 'blur(12px)',
-        WebkitBackdropFilter: 'blur(12px)',
-        boxShadow: 'inset 0 1px 0 rgba(255, 255, 255, 0.06)'
+        WebkitBackdropFilter: 'blur(12px)'
       }}>
-        <Cpu size={14} style={{ color: 'var(--accent-lemongrass)' }} />
-        <span style={{ color: '#94a3b8', fontSize: '10.5px', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+        <Cpu size={14} style={{ color: 'var(--accent-blue)' }} />
+        <span style={{ color: 'var(--text-secondary)', fontSize: '10.5px', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
           MODEL:
         </span>
 
@@ -56,7 +55,7 @@ export default function ModelSelector({ selectedModel, onSelectModel, disabled =
           style={{
             background: 'transparent',
             border: 'none',
-            color: 'var(--accent-lemongrass)',
+            color: 'var(--accent-blue)',
             fontFamily: 'var(--font-mono)',
             fontSize: '11.5px',
             fontWeight: 600,
@@ -65,18 +64,18 @@ export default function ModelSelector({ selectedModel, onSelectModel, disabled =
             paddingRight: '6px'
           }}
         >
-          <option value="auto" style={{ background: '#0f141d', color: '#fff' }}>
+          <option value="auto" style={{ background: '#ffffff', color: '#090d16' }}>
             Auto-Detect (Router Rules)
           </option>
 
           {models.map((m) => (
-            <option key={m.key} value={m.key} style={{ background: '#0f141d', color: '#fff' }}>
+            <option key={m.key} value={m.key} style={{ background: '#ffffff', color: '#090d16' }}>
               {m.name} ({m.capability?.toUpperCase() || 'LLM'})
             </option>
           ))}
         </select>
 
-        <ChevronDown size={12} style={{ color: '#64748b', pointerEvents: 'none' }} />
+        <ChevronDown size={12} style={{ color: 'var(--text-dim)', pointerEvents: 'none' }} />
       </div>
     </div>
   );

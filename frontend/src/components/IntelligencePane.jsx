@@ -22,7 +22,8 @@ export default function IntelligencePane({
   isCollapsed,
   onToggleCollapse,
   activeModel = 'phi3.5:3.8b',
-  isStreaming = false
+  isStreaming = false,
+  systemStatus
 }) {
   const [internalTab, setInternalTab] = useState('agents');
   const [expandedTools, setExpandedTools] = useState({});
@@ -74,17 +75,17 @@ export default function IntelligencePane({
   // Dynamic Pipeline States
   const getStageStatus = (stageNum) => {
     if (isStreaming) {
-      if (stageNum === 1) return { label: 'RUNNING', symbol: '●', color: 'var(--accent-lemongrass)', isRunning: true };
+      if (stageNum === 1) return { label: 'RUNNING', symbol: '●', color: 'var(--accent-blue)', isRunning: true };
       if (stageNum === 2) return sources.length > 0 ? { label: 'COMPLETE', symbol: '✓', color: 'var(--text-secondary)', isComplete: true } : { label: 'WAITING', symbol: '◌', color: 'var(--text-dim)' };
       if (stageNum === 3) return sources.length > 0 ? { label: 'COMPLETE', symbol: '✓', color: 'var(--text-secondary)', isComplete: true } : { label: 'WAITING', symbol: '◌', color: 'var(--text-dim)' };
-      if (stageNum === 4) return sources.length > 0 ? { label: 'VERIFYING', symbol: '●', color: 'var(--accent-amber)', isRunning: true } : { label: 'STANDBY', symbol: '—', color: 'var(--text-dim)' };
+      if (stageNum === 4) return sources.length > 0 ? { label: 'VERIFYING', symbol: '●', color: 'var(--accent-orange)', isRunning: true } : { label: 'STANDBY', symbol: '—', color: 'var(--accent-orange-dim)' };
     }
 
     if (sources.length > 0 || agentSteps.length > 0) {
       if (stageNum === 1) return { label: 'COMPLETE', symbol: '✓', color: 'var(--text-secondary)', isComplete: true };
       if (stageNum === 2) return { label: 'COMPLETE', symbol: '✓', color: 'var(--text-secondary)', isComplete: true };
       if (stageNum === 3) return { label: 'COMPLETE', symbol: '✓', color: 'var(--text-secondary)', isComplete: true };
-      if (stageNum === 4) return { label: 'VERIFIED', symbol: '✓', color: 'var(--accent-lemongrass)', isVerified: true, isComplete: true };
+      if (stageNum === 4) return { label: 'VERIFIED', symbol: '✓', color: 'var(--accent-orange)', isVerified: true, isComplete: true };
     }
 
     // Default Idle State
@@ -92,14 +93,14 @@ export default function IntelligencePane({
       case 1: return { label: 'IDLE', symbol: '●', color: 'var(--text-dim)' };
       case 2: return { label: 'READY', symbol: '●', color: 'var(--text-secondary)' };
       case 3: return { label: 'READY', symbol: '●', color: 'var(--text-secondary)' };
-      case 4: default: return { label: 'STANDBY', symbol: '—', color: 'var(--text-dim)' };
+      case 4: default: return { label: 'STANDBY', symbol: '—', color: 'var(--accent-orange-dim)' };
     }
   };
 
   const stages = [
     { num: '01', name: 'ORCHESTRATOR', desc: 'Task decomposition', status: getStageStatus(1) },
     { num: '02', name: 'DOCUMENT ANALYST', desc: 'Source identification', status: getStageStatus(2) },
-    { num: '03', name: 'PAGEINDEX', desc: 'Repository traversal', status: getStageStatus(3) },
+    { num: '03', name: 'RAG SYSTEM', desc: 'Repository traversal', status: getStageStatus(3) },
     { num: '04', name: 'SOVEREIGN VERIFIER', desc: 'Evidence validation', status: getStageStatus(4) }
   ];
 
@@ -221,10 +222,11 @@ export default function IntelligencePane({
                   key={st.num}
                   style={{
                     background: 'var(--bg-surface)',
-                    border: `1px solid ${st.status.isVerified ? 'rgba(182, 216, 58, 0.35)' : 'var(--border-subtle)'}`,
+                    border: `1px solid ${st.status.isVerified ? 'rgba(245, 158, 11, 0.45)' : (st.status.isRunning ? 'rgba(2, 132, 199, 0.45)' : 'var(--border-subtle)')}`,
                     borderRadius: 'var(--radius-xs)',
                     padding: '8px 10px',
                     fontFamily: 'var(--font-mono)',
+                    boxShadow: '0 1px 3px rgba(15, 23, 42, 0.04)',
                     transition: 'border-color 0.25s ease, background 0.25s ease'
                   }}
                 >
@@ -477,9 +479,9 @@ export default function IntelligencePane({
                 fontFamily: 'var(--font-mono)'
               }}>
                 <div style={{ fontSize: '9.5px', color: 'var(--text-dim)' }}>NETWORK</div>
-                <div style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-main)', marginTop: '2px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                  <span className="pulse-dot" style={{ width: '5px', height: '5px' }} />
-                  <span>AIR-GAPPED ●</span>
+                <div style={{ fontSize: '12px', fontWeight: 600, color: 'var(--accent-orange)', marginTop: '2px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <span className="pulse-dot-amber" style={{ width: '5px', height: '5px' }} />
+                  <span>{systemStatus?.network_mode?.toUpperCase() || 'AIR-GAPPED'} ●</span>
                 </div>
               </div>
 
@@ -492,7 +494,7 @@ export default function IntelligencePane({
               }}>
                 <div style={{ fontSize: '9.5px', color: 'var(--text-dim)' }}>MODEL</div>
                 <div style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-main)', marginTop: '2px' }}>
-                  LOCAL / {activeModel.toUpperCase()}
+                  LOCAL / {systemStatus?.active_model?.toUpperCase() || activeModel.toUpperCase()}
                 </div>
               </div>
 
@@ -503,9 +505,9 @@ export default function IntelligencePane({
                 padding: '10px 12px',
                 fontFamily: 'var(--font-mono)'
               }}>
-                <div style={{ fontSize: '9.5px', color: 'var(--text-dim)' }}>PAGEINDEX</div>
+                <div style={{ fontSize: '9.5px', color: 'var(--text-dim)' }}>RAG SYSTEM</div>
                 <div style={{ fontSize: '12px', fontWeight: 600, color: 'var(--accent-lemongrass)', marginTop: '2px' }}>
-                  READY ●
+                  {systemStatus?.knowledge_base?.status || 'READY'} ●
                 </div>
               </div>
 
@@ -518,7 +520,7 @@ export default function IntelligencePane({
               }}>
                 <div style={{ fontSize: '9.5px', color: 'var(--text-dim)' }}>AGENTS</div>
                 <div style={{ fontSize: '12px', fontWeight: 600, color: 'var(--text-main)', marginTop: '2px' }}>
-                  3 ACTIVE
+                  {systemStatus?.active_agents || 0} ACTIVE
                 </div>
               </div>
 

@@ -45,33 +45,34 @@ export default function NetworkBadge() {
     <>
       <button
         onClick={() => setShowModal(true)}
-        className="pill-badge pill-badge-accent"
+        className="pill-badge"
         style={{
           cursor: 'pointer',
-          padding: '4px 12px',
-          gap: '8px',
-          background: isAirGapped ? 'rgba(163, 230, 53, 0.08)' : 'rgba(244, 63, 94, 0.1)',
-          border: isAirGapped ? '1px solid rgba(163, 230, 53, 0.35)' : '1px solid rgba(244, 63, 94, 0.4)',
-          color: isAirGapped ? 'var(--accent-lemongrass)' : 'var(--status-rose)',
-          transition: 'all 0.2s ease'
+          padding: '4px 11px',
+          gap: '7px',
+          background: isAirGapped ? 'var(--accent-orange-subtle)' : 'rgba(225, 29, 72, 0.08)',
+          border: isAirGapped ? '1px solid rgba(245, 158, 11, 0.38)' : '1px solid rgba(225, 29, 72, 0.4)',
+          color: isAirGapped ? 'var(--accent-orange-dim)' : 'var(--status-rose)',
+          transition: 'all 0.2s ease',
+          boxShadow: 'var(--shadow-sm)'
         }}
         title="Click to view Sovereign Air-Gap Network Audit"
       >
         <span
-          className="pulse-dot"
+          className="pulse-dot-amber"
           style={{
-            backgroundColor: isAirGapped ? 'var(--accent-lemongrass)' : 'var(--status-rose)',
-            boxShadow: isAirGapped ? '0 0 8px var(--accent-lemongrass)' : '0 0 8px var(--status-rose)'
+            backgroundColor: isAirGapped ? 'var(--accent-orange)' : 'var(--status-rose)',
+            boxShadow: isAirGapped ? '0 0 8px var(--accent-orange-glow)' : '0 0 8px var(--status-rose)'
           }}
         />
-        <span style={{ fontWeight: 600, letterSpacing: '0.02em', fontSize: '11px' }}>
+        <span style={{ fontWeight: 700, letterSpacing: '0.04em', fontSize: '10.5px' }}>
           {isAirGapped ? 'AIR-GAPPED' : 'LEAK WARNING'}
         </span>
-        <span style={{ color: 'rgba(255, 255, 255, 0.4)', margin: '0 1px' }}>|</span>
-        <span style={{ color: '#94a3b8', fontSize: '10.5px' }}>
-          Ext: <strong style={{ color: isAirGapped ? '#fff' : 'var(--status-rose)' }}>{networkInfo.external_connections}</strong>
+        <span style={{ color: 'var(--border-medium)', margin: '0 1px' }}>|</span>
+        <span style={{ color: 'var(--text-secondary)', fontSize: '10px' }}>
+          Ext: <strong style={{ color: isAirGapped ? 'var(--text-main)' : 'var(--status-rose)' }}>{networkInfo.external_connections}</strong>
           {' · '}
-          Loc: <strong style={{ color: 'var(--accent-lemongrass)' }}>{networkInfo.local_connections}</strong>
+          Loc: <strong style={{ color: 'var(--accent-orange)' }}>{networkInfo.local_connections}</strong>
         </span>
       </button>
 
@@ -82,9 +83,9 @@ export default function NetworkBadge() {
           style={{
             position: 'fixed',
             top: 0, left: 0, right: 0, bottom: 0,
-            background: 'rgba(3, 5, 8, 0.75)',
-            backdropFilter: 'blur(16px)',
-            WebkitBackdropFilter: 'blur(16px)',
+            background: 'rgba(0, 0, 0, 0.4)',
+            backdropFilter: 'blur(12px)',
+            WebkitBackdropFilter: 'blur(12px)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
@@ -94,28 +95,30 @@ export default function NetworkBadge() {
           onClick={() => setShowModal(false)}
         >
           <div
-            className="modern-card anim-modal-content"
+            className="anim-modal-content"
             style={{
               width: '100%',
               maxWidth: '680px',
-              border: '1px solid rgba(163, 230, 53, 0.45)',
-              background: 'linear-gradient(145deg, rgba(17, 23, 31, 0.95) 0%, rgba(10, 14, 20, 0.98) 100%)',
-              boxShadow: '0 24px 64px -12px rgba(0, 0, 0, 0.8), 0 0 32px rgba(163, 230, 53, 0.15)'
+              border: '1px solid var(--border-medium)',
+              background: 'var(--bg-panel)',
+              borderRadius: 'var(--radius-xs)',
+              boxShadow: 'var(--shadow-lg)',
+              overflow: 'hidden'
             }}
             onClick={(e) => e.stopPropagation()}
           >
             {/* Modal Header */}
             <div style={{
               padding: '14px 20px',
-              background: 'rgba(255, 255, 255, 0.03)',
+              background: 'var(--bg-elevated)',
               borderBottom: '1px solid var(--border-subtle)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'space-between'
             }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '9px', color: 'var(--accent-lemongrass)' }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: '9px', color: 'var(--accent-blue)' }}>
                 <ShieldCheck size={18} />
-                <span style={{ fontWeight: 700, fontSize: '13px', letterSpacing: '0.03em' }}>
+                <span style={{ fontWeight: 700, fontSize: '13px', letterSpacing: '0.03em', color: 'var(--text-main)' }}>
                   SOVEREIGN NETWORK PROOF // AIR-GAP TELEMETRY
                 </span>
               </div>
@@ -132,56 +135,56 @@ export default function NetworkBadge() {
               {/* Telemetry Metric Cards */}
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '12px', marginBottom: '16px' }}>
                 <div style={{
-                  background: 'rgba(255, 255, 255, 0.03)',
+                  background: 'var(--bg-elevated)',
                   padding: '12px 14px',
-                  borderRadius: 'var(--radius-md)',
+                  borderRadius: 'var(--radius-xs)',
                   border: '1px solid var(--border-subtle)'
                 }}>
-                  <div style={{ fontSize: '10.5px', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.04em' }}>EGRESS STATUS</div>
-                  <div style={{ fontSize: '15px', fontWeight: 700, color: 'var(--accent-lemongrass)', marginTop: '4px' }}>
+                  <div style={{ fontSize: '10.5px', color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>EGRESS STATUS</div>
+                  <div style={{ fontSize: '15px', fontWeight: 700, color: 'var(--accent-orange)', marginTop: '4px' }}>
                     0 LEAKS (100% PRIVATE)
                   </div>
                 </div>
 
                 <div style={{
-                  background: 'rgba(255, 255, 255, 0.03)',
+                  background: 'var(--bg-elevated)',
                   padding: '12px 14px',
-                  borderRadius: 'var(--radius-md)',
+                  borderRadius: 'var(--radius-xs)',
                   border: '1px solid var(--border-subtle)'
                 }}>
-                  <div style={{ fontSize: '10.5px', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.04em' }}>LOCAL SOCKETS</div>
-                  <div style={{ fontSize: '15px', fontWeight: 700, color: '#38bdf8', marginTop: '4px' }}>
+                  <div style={{ fontSize: '10.5px', color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>LOCAL SOCKETS</div>
+                  <div style={{ fontSize: '15px', fontWeight: 700, color: 'var(--accent-blue)', marginTop: '4px' }}>
                     {networkInfo.local_connections} ACTIVE IPC
                   </div>
                 </div>
 
                 <div style={{
-                  background: 'rgba(255, 255, 255, 0.03)',
+                  background: 'var(--bg-elevated)',
                   padding: '12px 14px',
-                  borderRadius: 'var(--radius-md)',
+                  borderRadius: 'var(--radius-xs)',
                   border: '1px solid var(--border-subtle)'
                 }}>
-                  <div style={{ fontSize: '10.5px', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.04em' }}>LAST AUDIT POLL</div>
-                  <div style={{ fontSize: '13px', fontWeight: 600, color: '#e2e8f0', marginTop: '6px', fontFamily: 'var(--font-mono)' }}>
+                  <div style={{ fontSize: '10.5px', color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>LAST AUDIT POLL</div>
+                  <div style={{ fontSize: '13px', fontWeight: 600, color: 'var(--text-main)', marginTop: '6px', fontFamily: 'var(--font-mono)' }}>
                     {networkInfo.timestamp ? new Date(networkInfo.timestamp).toLocaleTimeString() : 'ACTIVE'}
                   </div>
                 </div>
               </div>
 
               {/* Sockets Table */}
-              <div style={{ marginBottom: '8px', fontSize: '11px', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+              <div style={{ marginBottom: '8px', fontSize: '11px', color: 'var(--text-secondary)', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
                 MONITORED INTERNAL SOCKET CONNECTIONS:
               </div>
 
               <div style={{
-                borderRadius: 'var(--radius-md)',
+                borderRadius: 'var(--radius-xs)',
                 border: '1px solid var(--border-subtle)',
                 overflow: 'hidden',
-                background: 'rgba(0, 0, 0, 0.25)'
+                background: 'var(--bg-surface)'
               }}>
                 <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '11.5px', fontFamily: 'var(--font-mono)' }}>
                   <thead>
-                    <tr style={{ background: 'rgba(255, 255, 255, 0.03)', borderBottom: '1px solid var(--border-subtle)', color: '#94a3b8', textAlign: 'left' }}>
+                    <tr style={{ background: 'var(--bg-elevated)', borderBottom: '1px solid var(--border-subtle)', color: 'var(--text-secondary)', textAlign: 'left' }}>
                       <th style={{ padding: '8px 12px' }}>SERVICE</th>
                       <th style={{ padding: '8px 12px' }}>BIND ADDRESS</th>
                       <th style={{ padding: '8px 12px' }}>TRANSPORT</th>
@@ -189,28 +192,28 @@ export default function NetworkBadge() {
                     </tr>
                   </thead>
                   <tbody>
-                    <tr style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.04)' }}>
-                      <td style={{ padding: '8px 12px', color: '#fff' }}>Ollama LLM Engine</td>
-                      <td style={{ padding: '8px 12px', color: 'var(--accent-lemongrass)' }}>127.0.0.1:11434</td>
-                      <td style={{ padding: '8px 12px', color: '#94a3b8' }}>TCP Loopback</td>
+                    <tr style={{ borderBottom: '1px solid var(--border-subtle)' }}>
+                      <td style={{ padding: '8px 12px', color: 'var(--text-main)' }}>Ollama LLM Engine</td>
+                      <td style={{ padding: '8px 12px', color: 'var(--accent-orange)' }}>127.0.0.1:11434</td>
+                      <td style={{ padding: '8px 12px', color: 'var(--text-muted)' }}>TCP Loopback</td>
                       <td style={{ padding: '8px 12px' }}>
-                        <span className="pill-badge pill-badge-accent" style={{ padding: '2px 8px', fontSize: '9.5px' }}>ENFORCED</span>
+                        <span className="status-tag status-tag-accent" style={{ padding: '2px 8px', fontSize: '9.5px' }}>ENFORCED</span>
                       </td>
                     </tr>
-                    <tr style={{ borderBottom: '1px solid rgba(255, 255, 255, 0.04)' }}>
-                      <td style={{ padding: '8px 12px', color: '#fff' }}>Knowledge Vector Store</td>
-                      <td style={{ padding: '8px 12px', color: 'var(--accent-lemongrass)' }}>127.0.0.1:8000</td>
-                      <td style={{ padding: '8px 12px', color: '#94a3b8' }}>Internal IPC</td>
+                    <tr style={{ borderBottom: '1px solid var(--border-subtle)' }}>
+                      <td style={{ padding: '8px 12px', color: 'var(--text-main)' }}>Knowledge Vector Store</td>
+                      <td style={{ padding: '8px 12px', color: 'var(--accent-orange)' }}>127.0.0.1:8000</td>
+                      <td style={{ padding: '8px 12px', color: 'var(--text-muted)' }}>Internal IPC</td>
                       <td style={{ padding: '8px 12px' }}>
-                        <span className="pill-badge pill-badge-accent" style={{ padding: '2px 8px', fontSize: '9.5px' }}>ENFORCED</span>
+                        <span className="status-tag status-tag-accent" style={{ padding: '2px 8px', fontSize: '9.5px' }}>ENFORCED</span>
                       </td>
                     </tr>
                     <tr>
-                      <td style={{ padding: '8px 12px', color: '#fff' }}>Execution Sandbox Daemon</td>
-                      <td style={{ padding: '8px 12px', color: 'var(--accent-lemongrass)' }}>/var/run/sandbox.sock</td>
-                      <td style={{ padding: '8px 12px', color: '#94a3b8' }}>Unix Domain Socket</td>
+                      <td style={{ padding: '8px 12px', color: 'var(--text-main)' }}>Execution Sandbox Daemon</td>
+                      <td style={{ padding: '8px 12px', color: 'var(--accent-orange)' }}>/var/run/sandbox.sock</td>
+                      <td style={{ padding: '8px 12px', color: 'var(--text-muted)' }}>Unix Domain Socket</td>
                       <td style={{ padding: '8px 12px' }}>
-                        <span className="pill-badge pill-badge-accent" style={{ padding: '2px 8px', fontSize: '9.5px' }}>ENFORCED</span>
+                        <span className="status-tag status-tag-accent" style={{ padding: '2px 8px', fontSize: '9.5px' }}>ENFORCED</span>
                       </td>
                     </tr>
                   </tbody>

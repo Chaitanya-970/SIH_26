@@ -101,14 +101,14 @@ export default function TopNav({
             width: '28px',
             height: '28px',
             borderRadius: 'var(--radius-xs)',
-            background: 'rgba(182, 216, 58, 0.08)',
-            border: '1px solid rgba(182, 216, 58, 0.25)',
+            background: 'var(--accent-blue-subtle)',
+            border: '1px solid rgba(2, 132, 199, 0.28)',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            color: 'var(--accent-lemongrass)',
+            color: 'var(--accent-blue)',
             flexShrink: 0,
-            filter: 'drop-shadow(0 0 6px rgba(182, 216, 58, 0.35))'
+            filter: 'drop-shadow(0 0 6px rgba(2, 132, 199, 0.25))'
           }}>
             <Layers size={17} strokeWidth={2.2} />
           </div>
@@ -163,7 +163,7 @@ export default function TopNav({
                   outline: 'none'
                 }}
                 onMouseEnter={(e) => {
-                  if (!isActive) e.currentTarget.style.color = '#fff';
+                  if (!isActive) e.currentTarget.style.color = 'var(--text-main)';
                 }}
                 onMouseLeave={(e) => {
                   if (!isActive) e.currentTarget.style.color = 'var(--text-secondary)';
@@ -174,7 +174,7 @@ export default function TopNav({
             );
           })}
 
-          {/* Traveling Yellow Accent Line Indicator */}
+          {/* Traveling Accent Line Indicator */}
           <div
             style={{
               position: 'absolute',
@@ -183,76 +183,79 @@ export default function TopNav({
               transform: `translateX(${indicatorStyle.left}px)`,
               width: `${indicatorStyle.width}px`,
               height: '2px',
-              backgroundColor: 'var(--accent-lemongrass)',
+              backgroundColor: 'var(--accent-blue)',
               opacity: indicatorStyle.opacity,
               transition: 'transform 0.28s cubic-bezier(0.2, 0, 0, 1), width 0.28s cubic-bezier(0.2, 0, 0, 1), opacity 0.15s ease',
               pointerEvents: 'none',
-              boxShadow: '0 0 8px rgba(182, 216, 58, 0.45)'
+              boxShadow: '0 0 8px rgba(2, 132, 199, 0.35)'
             }}
           />
         </nav>
       </div>
 
       {/* Right Controls: Operator Profile Dropdown */}
-      <div ref={dropdownContainerRef} style={{ position: 'relative' }}>
-        <div
-          onClick={() => setIsDropdownOpen((prev) => !prev)}
-          className="btn-modern"
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '8px',
-            background: isDropdownOpen ? 'var(--bg-elevated)' : 'var(--bg-surface)',
-            border: `1px solid ${isDropdownOpen ? 'var(--border-highlight)' : 'var(--border-subtle)'}`,
-            borderRadius: 'var(--radius-xs)',
-            padding: '4px 10px',
-            cursor: 'pointer',
-            fontSize: '11.5px',
-            color: 'var(--text-secondary)'
-          }}
-          title="Click to switch operator profile"
-        >
-          <div style={{
-            width: '20px',
-            height: '20px',
-            borderRadius: 'var(--radius-xs)',
-            background: 'var(--bg-elevated)',
-            border: '1px solid var(--border-medium)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            color: 'var(--text-main)',
-            fontSize: '9.5px',
-            fontWeight: 700,
-            fontFamily: 'var(--font-mono)'
-          }}>
-            {user?.initials || user?.name?.[0] || 'CH'}
-          </div>
-          <div>
-            <span style={{ color: 'var(--text-main)', fontWeight: 600 }}>{user?.name || 'Chaitanya'}</span>
-            <span style={{ color: 'var(--text-dim)', marginLeft: '6px', fontSize: '10.5px' }}>
-              ({user?.role || 'Agent Systems'})
-            </span>
-          </div>
-          <ChevronDown
-            size={11}
+      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+        <div ref={dropdownContainerRef} style={{ position: 'relative' }}>
+          <div
+            onClick={() => setIsDropdownOpen((prev) => !prev)}
+            className="btn-modern"
             style={{
-              color: 'var(--text-dim)',
-              marginLeft: '2px',
-              transform: isDropdownOpen ? 'rotate(180deg)' : 'none',
-              transition: 'transform 0.15s ease'
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              background: isDropdownOpen ? 'var(--bg-elevated)' : 'var(--bg-surface)',
+              border: `1px solid ${isDropdownOpen ? 'var(--border-highlight)' : 'var(--border-subtle)'}`,
+              borderRadius: 'var(--radius-xs)',
+              padding: '4px 10px',
+              cursor: 'pointer',
+              fontSize: '11.5px',
+              color: 'var(--text-secondary)',
+              boxShadow: 'var(--shadow-sm)'
             }}
+            title="Click to switch operator profile"
+          >
+            <div style={{
+              width: '20px',
+              height: '20px',
+              borderRadius: 'var(--radius-xs)',
+              background: 'var(--accent-orange-subtle)',
+              border: '1px solid rgba(245, 158, 11, 0.35)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: 'var(--accent-orange-dim)',
+              fontSize: '9.5px',
+              fontWeight: 700,
+              fontFamily: 'var(--font-mono)'
+            }}>
+              {user?.initials || user?.name?.[0] || 'CH'}
+            </div>
+            <div>
+              <span style={{ color: 'var(--text-main)', fontWeight: 600 }}>{user?.name || 'Chaitanya'}</span>
+              <span style={{ color: 'var(--text-dim)', marginLeft: '6px', fontSize: '10.5px' }}>
+                ({user?.role || 'Agent Systems'})
+              </span>
+            </div>
+            <ChevronDown
+              size={11}
+              style={{
+                color: 'var(--text-dim)',
+                marginLeft: '2px',
+                transform: isDropdownOpen ? 'rotate(180deg)' : 'none',
+                transition: 'transform 0.15s ease'
+              }}
+            />
+          </div>
+
+          {/* Operator Profile Dropdown Popover */}
+          <OperatorDropdown
+            isOpen={isDropdownOpen}
+            onClose={() => setIsDropdownOpen(false)}
+            currentOperator={user}
+            operators={OPERATORS}
+            onSelectOperator={onSelectOperator}
           />
         </div>
-
-        {/* Operator Profile Dropdown Popover */}
-        <OperatorDropdown
-          isOpen={isDropdownOpen}
-          onClose={() => setIsDropdownOpen(false)}
-          currentOperator={user}
-          operators={OPERATORS}
-          onSelectOperator={onSelectOperator}
-        />
       </div>
     </header>
   );

@@ -16,7 +16,7 @@ import {
 
 /**
  * KnowledgeBase - Structured Engineering Document Repository
- * Highlights PageIndex hierarchical navigation, compact ingestion pipeline,
+ * Highlights RAG hierarchical navigation, compact ingestion pipeline,
  * and Document Inspector with interactive tree traversal.
  */
 export default function KnowledgeBase({
@@ -78,7 +78,7 @@ export default function KnowledgeBase({
 
     setUploadStatus({
       type: 'uploading',
-      message: `Ingesting "${file.name}" through PageIndex structural pipeline...`
+      message: `Ingesting "${file.name}" through RAG structural pipeline...`
     });
 
     try {
@@ -113,51 +113,9 @@ export default function KnowledgeBase({
     }
   };
 
-  // Structured PageIndex outlines for representative documents
   const getDocOutline = (doc) => {
-    if (!doc) return [];
-    if (doc.name.includes('Maintenance_Report_042')) {
-      return [
-        { title: 'Executive Summary', level: 0 },
-        { title: 'Equipment Overview', level: 0 },
-        { title: 'Maintenance History', level: 0 },
-        { title: 'Pump Systems', level: 0, children: [
-          { title: 'Pump 15 Operating Logs', level: 1 },
-          { title: 'Pump 16 Overhaul Records', level: 1 },
-          { title: 'Pump 17 Root Cause (Plan 31 Choke)', level: 1 }
-        ]},
-        { title: 'Corrective Recommendations', level: 0 }
-      ];
-    }
-    if (doc.name.includes('Pump_Specifications_P17')) {
-      return [
-        { title: 'General Equipment Datasheet (API 610 BB2)', level: 0 },
-        { title: 'Impeller Clearance & Metallurgy Limits', level: 0 },
-        { title: 'Mechanical Seal Auxiliary Flushing (Page 42)', level: 0 },
-        { title: 'Allowable Nozzle Loads & Stresses', level: 0 }
-      ];
-    }
-    if (doc.name.includes('SAFETY_MANUAL')) {
-      return [
-        { title: 'Facility Scope & Safe Work Codes', level: 0 },
-        { title: 'Standard Operating Procedures (SOPs)', level: 0 },
-        { title: 'Pressure Relief & Flare Systems', level: 0 },
-        { title: 'Vibration Limits & Bearing Temperatures', level: 0 }
-      ];
-    }
-    if (doc.name.includes('ASME_B31.3')) {
-      return [
-        { title: 'Chapter I: Scope & Definitions', level: 0 },
-        { title: 'Chapter II: Design Criteria & Allowables', level: 0 },
-        { title: 'Table A-1: Basic Allowable Stresses (Sa)', level: 0 },
-        { title: 'Appendix D: Flexibility & Stress Factors', level: 0 }
-      ];
-    }
     return [
-      { title: 'Document Metadata & Ingestion Header', level: 0 },
-      { title: 'Section 1: General Operational Overview', level: 0 },
-      { title: 'Section 2: Engineering Parameters', level: 0 },
-      { title: 'Section 3: Inspection Logs & Signoff', level: 0 }
+      { title: 'Outline not available', level: 0 }
     ];
   };
 
@@ -226,7 +184,8 @@ export default function KnowledgeBase({
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
-          transition: 'all 0.15s ease'
+          transition: 'all 0.15s ease',
+          boxShadow: 'var(--shadow-sm)'
         }}
       >
         <input
@@ -251,7 +210,7 @@ export default function KnowledgeBase({
           </div>
         </div>
 
-        <span style={{ fontFamily: 'var(--font-mono)', fontSize: '10.5px', color: 'var(--text-dim)' }}>
+        <span style={{ fontFamily: 'var(--font-mono)', fontSize: '10.5px', color: 'var(--accent-orange)' }}>
           BROWSE FILES
         </span>
       </div>
@@ -274,8 +233,8 @@ export default function KnowledgeBase({
       {/* Upload Feedback Banner */}
       {uploadStatus && (
         <div style={{
-          background: uploadStatus.type === 'error' ? 'rgba(244, 63, 94, 0.1)' : 'rgba(182, 216, 58, 0.08)',
-          border: `1px solid ${uploadStatus.type === 'error' ? 'var(--status-rose)' : 'var(--accent-lemongrass)'}`,
+          background: uploadStatus.type === 'error' ? 'rgba(244, 63, 94, 0.1)' : 'var(--accent-blue-subtle)',
+          border: `1px solid ${uploadStatus.type === 'error' ? 'var(--status-rose)' : 'var(--accent-blue)'}`,
           borderRadius: 'var(--radius-xs)',
           padding: '8px 14px',
           marginBottom: '16px',
@@ -283,7 +242,7 @@ export default function KnowledgeBase({
           alignItems: 'center',
           gap: '8px',
           fontSize: '11.5px',
-          color: uploadStatus.type === 'error' ? '#fda4af' : 'var(--accent-lemongrass)'
+          color: uploadStatus.type === 'error' ? '#b91c1c' : 'var(--accent-blue)'
         }}>
           {uploadStatus.type === 'error' ? <AlertTriangle size={14} /> : <CheckCircle2 size={14} />}
           <span>{uploadStatus.message}</span>
@@ -305,7 +264,8 @@ export default function KnowledgeBase({
           borderRadius: 'var(--radius-xs)',
           display: 'flex',
           flexDirection: 'column',
-          overflow: 'hidden'
+          overflow: 'hidden',
+          boxShadow: 'var(--shadow-box)'
         }}>
           {/* Repository Toolbar */}
           <div style={{
@@ -359,16 +319,16 @@ export default function KnowledgeBase({
             gap: '4px',
             padding: '6px 14px',
             borderBottom: '1px solid var(--border-subtle)',
-            background: 'rgba(0, 0, 0, 0.2)'
+            background: 'var(--bg-elevated)'
           }}>
             {['ALL', 'ENGINEERING', 'OPERATIONS', 'SAFETY'].map((cat) => (
               <button
                 key={cat}
                 onClick={() => setActiveCategory(cat)}
                 style={{
-                  background: activeCategory === cat ? 'var(--bg-elevated)' : 'transparent',
+                  background: activeCategory === cat ? 'var(--bg-surface)' : 'transparent',
                   border: activeCategory === cat ? '1px solid var(--border-subtle)' : '1px solid transparent',
-                  color: activeCategory === cat ? '#fff' : 'var(--text-muted)',
+                  color: activeCategory === cat ? 'var(--accent-orange-dim)' : 'var(--text-muted)',
                   borderRadius: 'var(--radius-xs)',
                   padding: '2px 8px',
                   fontFamily: 'var(--font-mono)',
@@ -425,11 +385,12 @@ export default function KnowledgeBase({
                         <span style={{
                           fontFamily: 'var(--font-mono)',
                           fontSize: '9.5px',
-                          padding: '2px 5px',
-                          background: 'rgba(255, 255, 255, 0.04)',
-                          border: '1px solid var(--border-subtle)',
+                          padding: '2px 6px',
+                          background: isSelected ? 'var(--accent-orange-subtle)' : 'var(--bg-elevated)',
+                          border: isSelected ? '1px solid rgba(245, 158, 11, 0.45)' : '1px solid var(--border-subtle)',
                           borderRadius: 'var(--radius-xs)',
-                          color: 'var(--text-dim)'
+                          color: isSelected ? 'var(--accent-orange-dim)' : 'var(--text-dim)',
+                          fontWeight: isSelected ? 700 : 500
                         }}>
                           {ext}
                         </span>
@@ -480,7 +441,7 @@ export default function KnowledgeBase({
           </div>
         </div>
 
-        {/* RIGHT COLUMN: DOCUMENT INSPECTOR (PageIndex Tree & Actions) */}
+        {/* RIGHT COLUMN: DOCUMENT INSPECTOR (Document Outline & Actions) */}
         <div style={{
           background: 'var(--bg-panel)',
           border: '1px solid var(--border-medium)',
@@ -489,7 +450,8 @@ export default function KnowledgeBase({
           display: 'flex',
           flexDirection: 'column',
           justifyContent: 'space-between',
-          overflow: 'hidden'
+          overflow: 'hidden',
+          boxShadow: 'var(--shadow-box)'
         }}>
           {selectedDoc ? (
             <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
@@ -520,9 +482,14 @@ export default function KnowledgeBase({
                   marginTop: '6px',
                   fontFamily: 'var(--font-mono)',
                   fontSize: '10.5px',
-                  color: 'var(--text-secondary)'
+                  color: 'var(--text-secondary)',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px'
                 }}>
-                  {selectedDoc.size_mb ? `${Math.round(selectedDoc.size_mb * 18)} PAGES` : '62 PAGES'}
+                  <span>{selectedDoc.pages ? `${selectedDoc.pages} PAGES` : 'Outline not available'}</span>
+                  <span>·</span>
+                  <span style={{ color: 'var(--accent-orange-dim)', fontWeight: 600 }}>PARSED & INDEXED</span>
                 </div>
               </div>
 

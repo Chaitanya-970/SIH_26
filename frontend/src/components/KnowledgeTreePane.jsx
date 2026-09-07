@@ -11,7 +11,7 @@ import {
 /**
  * KnowledgeTreePane - PANE 1 (LEFT): KNOWLEDGE
  * "What the system knows"
- * Clean industrial repository navigator with PageIndex hierarchy
+ * Clean industrial repository navigator with RAG hierarchy
  */
 export default function KnowledgeTreePane({
   documents = [],
@@ -24,7 +24,7 @@ export default function KnowledgeTreePane({
   const [searchTerm, setSearchTerm] = useState('');
   const [expandedDocs, setExpandedDocs] = useState({});
 
-  const toggleDocPageIndex = (docId, e) => {
+  const toggleDocOutline = (docId, e) => {
     e.stopPropagation();
     setExpandedDocs((prev) => ({ ...prev, [docId]: !prev[docId] }));
   };
@@ -200,8 +200,8 @@ export default function KnowledgeTreePane({
           <div style={{ display: 'flex', flexDirection: 'column', gap: '2px' }}>
             {filteredDocs.map((doc, idx) => {
               const isDocSelected = activeDocument?.name === doc.name;
-              const hasPageIndex = doc.pageIndex && doc.pageIndex.length > 0;
-              const isIndexExpanded = expandedDocs[doc.id];
+              const hasOutline = doc.outline && doc.outline.length > 0;
+              const isOutlineExpanded = expandedDocs[doc.id];
 
               return (
                 <div key={doc.id || doc.name} className="anim-stagger-item" style={{ margin: '1px 0', animationDelay: `${idx * 40}ms` }}>
@@ -222,17 +222,17 @@ export default function KnowledgeTreePane({
                       transition: 'background 0.1s ease'
                     }}
                   >
-                    {hasPageIndex ? (
+                    {hasOutline ? (
                       <button
-                        onClick={(e) => toggleDocPageIndex(doc.id, e)}
+                        onClick={(e) => toggleDocOutline(doc.id, e)}
                         style={{ background: 'transparent', border: 'none', color: 'var(--text-dim)', cursor: 'pointer', padding: 0 }}
                       >
-                        {isIndexExpanded ? <ChevronDown size={11} /> : <ChevronRight size={11} />}
+                        {isOutlineExpanded ? <ChevronDown size={11} /> : <ChevronRight size={11} />}
                       </button>
                     ) : (
                       <span style={{ width: '11px' }} />
                     )}
-                    <FileText size={12} style={{ color: isDocSelected ? 'var(--accent-lemongrass)' : 'var(--text-dim)', flexShrink: 0 }} />
+                    <FileText size={12} style={{ color: isDocSelected ? 'var(--accent-blue)' : 'var(--text-dim)', flexShrink: 0 }} />
                     <span style={{
                       overflow: 'hidden',
                       textOverflow: 'ellipsis',
@@ -244,8 +244,8 @@ export default function KnowledgeTreePane({
                     </span>
                   </div>
 
-                  {/* PageIndex Tree Subsections */}
-                  {hasPageIndex && isIndexExpanded && (
+                  {/* Document Outline Subsections */}
+                  {hasOutline && isOutlineExpanded && (
                     <div style={{
                       paddingLeft: '12px',
                       borderLeft: '1px solid var(--border-subtle)',
@@ -254,7 +254,7 @@ export default function KnowledgeTreePane({
                       fontSize: '10.5px',
                       fontFamily: 'var(--font-mono)'
                     }}>
-                      {doc.pageIndex.map((section, sIdx) => (
+                      {doc.outline.map((section, sIdx) => (
                         <div key={sIdx}>
                           <div
                             onClick={() => onSelectDocument(doc, section.page)}
@@ -296,7 +296,7 @@ export default function KnowledgeTreePane({
           className="btn-modern"
           style={{ width: '100%', justifyContent: 'center', fontSize: '11.5px', padding: '6px 10px', color: 'var(--text-main)' }}
         >
-          <Plus size={12} style={{ color: 'var(--accent-lemongrass)' }} />
+          <Plus size={12} style={{ color: 'var(--accent-orange)' }} />
           <span>Upload Document</span>
         </button>
       </div>

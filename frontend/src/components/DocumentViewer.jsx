@@ -1,5 +1,8 @@
 import React, { useState } from 'react';
-import { DOCUMENT_PAGES, MOCK_DOCX_PREVIEW_HTML, MOCK_CODE_OUTPUT, MOCK_SHEET_DATA } from '../services/mockData';
+const DOCUMENT_PAGES = {};
+const MOCK_DOCX_PREVIEW_HTML = "<div style='padding: 20px; font-family: monospace; color: #888;'>Preview not available</div>";
+const MOCK_CODE_OUTPUT = { code: "# Code not available", stdout: "No output available" };
+const MOCK_SHEET_DATA = [];
 import { downloadSessionFile } from '../services/api';
 import {
   FileText,
@@ -61,8 +64,7 @@ export default function DocumentViewer({
       {/* Top Document Toolbar */}
       <div style={{
         padding: '10px 20px',
-        background: 'rgba(12, 16, 23, 0.75)',
-        backdropFilter: 'blur(20px)',
+        background: 'var(--bg-panel)',
         borderBottom: '1px solid var(--border-subtle)',
         display: 'flex',
         justifyContent: 'space-between',
@@ -84,8 +86,8 @@ export default function DocumentViewer({
           )}
 
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <FileText size={15} style={{ color: 'var(--accent-lemongrass)' }} />
-            <span style={{ color: '#fff', fontWeight: 600 }}>{activeDoc.name}</span>
+            <FileText size={15} style={{ color: 'var(--accent-orange)' }} />
+            <span style={{ color: 'var(--text-main)', fontWeight: 600 }}>{activeDoc.name}</span>
             <span className="pill-badge" style={{ padding: '1px 6px', fontSize: '10px' }}>
               {activeDoc.size || '3.2 MB'}
             </span>
@@ -98,7 +100,7 @@ export default function DocumentViewer({
             display: 'flex',
             alignItems: 'center',
             gap: '10px',
-            background: 'rgba(0, 0, 0, 0.3)',
+            background: 'var(--bg-elevated)',
             border: '1px solid var(--border-subtle)',
             borderRadius: 'var(--radius-pill)',
             padding: '3px 12px'
@@ -106,17 +108,17 @@ export default function DocumentViewer({
             <button
               onClick={handlePrevPage}
               disabled={currentPage <= 1}
-              style={{ background: 'transparent', border: 'none', color: currentPage <= 1 ? '#444' : '#fff', cursor: currentPage <= 1 ? 'not-allowed' : 'pointer' }}
+              style={{ background: 'transparent', border: 'none', color: currentPage <= 1 ? 'var(--text-dim)' : 'var(--text-main)', cursor: currentPage <= 1 ? 'not-allowed' : 'pointer' }}
             >
               <ChevronLeft size={14} />
             </button>
-            <span style={{ color: '#cbd5e1', fontSize: '11.5px' }}>
-              Page <strong style={{ color: 'var(--accent-lemongrass)' }}>{currentPage}</strong> of {totalPages}
+            <span style={{ color: 'var(--text-secondary)', fontSize: '11.5px' }}>
+              Page <strong style={{ color: 'var(--accent-orange)' }}>{currentPage}</strong> of {totalPages}
             </span>
             <button
               onClick={handleNextPage}
               disabled={currentPage >= totalPages}
-              style={{ background: 'transparent', border: 'none', color: currentPage >= totalPages ? '#444' : '#fff', cursor: currentPage >= totalPages ? 'not-allowed' : 'pointer' }}
+              style={{ background: 'transparent', border: 'none', color: currentPage >= totalPages ? 'var(--text-dim)' : 'var(--text-main)', cursor: currentPage >= totalPages ? 'not-allowed' : 'pointer' }}
             >
               <ChevronRight size={14} />
             </button>
@@ -181,21 +183,21 @@ function renderDocumentBody(doc, currentPage, pageData, highlightText, activeCod
         <div style={{ width: '100%', maxWidth: '840px' }}>
           <div style={{
             padding: '8px 16px',
-            background: 'rgba(19, 25, 34, 0.9)',
+            background: 'var(--bg-elevated)',
             border: '1px solid var(--border-medium)',
             borderTopLeftRadius: 'var(--radius-lg)',
             borderTopRightRadius: 'var(--radius-lg)',
             borderBottom: 'none',
             fontSize: '11.5px',
-            color: '#94a3b8',
+            color: 'var(--text-secondary)',
             display: 'flex',
             justifyContent: 'space-between'
           }}>
             <span>SECURE SANDBOX // UNPRIVILEGED IPC</span>
-            <span style={{ color: 'var(--accent-lemongrass)', fontWeight: 600 }}>STATUS: EXIT 0 (0.84s)</span>
+            <span style={{ color: 'var(--accent-orange)', fontWeight: 600 }}>STATUS: EXIT 0 (0.84s)</span>
           </div>
           <pre style={{
-            background: '#05070a',
+            background: '#f8fafc',
             border: '1px solid var(--border-medium)',
             borderBottomLeftRadius: 'var(--radius-lg)',
             borderBottomRightRadius: 'var(--radius-lg)',
@@ -203,10 +205,10 @@ function renderDocumentBody(doc, currentPage, pageData, highlightText, activeCod
             fontFamily: 'var(--font-mono)',
             fontSize: '12px',
             lineHeight: '1.55',
-            color: '#a3e635',
+            color: '#0f766e',
             overflow: 'auto',
             margin: 0,
-            boxShadow: 'var(--shadow-lg)'
+            boxShadow: 'var(--shadow-sm)'
           }}>
             {codeData.stdout}
           </pre>
@@ -217,21 +219,21 @@ function renderDocumentBody(doc, currentPage, pageData, highlightText, activeCod
       <div style={{ width: '100%', maxWidth: '840px' }}>
         <div style={{
           padding: '8px 16px',
-          background: 'rgba(19, 25, 34, 0.9)',
+          background: 'var(--bg-elevated)',
           border: '1px solid var(--border-medium)',
           borderTopLeftRadius: 'var(--radius-lg)',
           borderTopRightRadius: 'var(--radius-lg)',
           borderBottom: 'none',
           fontSize: '11.5px',
-          color: '#94a3b8',
+          color: 'var(--text-secondary)',
           display: 'flex',
           justifyContent: 'space-between'
         }}>
           <span>SYNTAX HIGHLIGHTED PYTHON 3.11</span>
-          <span style={{ color: '#38bdf8', fontWeight: 600 }}>ASME B31.3 VERIFIED</span>
+          <span style={{ color: 'var(--accent-blue)', fontWeight: 600 }}>ASME B31.3 VERIFIED</span>
         </div>
         <pre style={{
-          background: '#05070a',
+          background: '#f8fafc',
           border: '1px solid var(--border-medium)',
           borderBottomLeftRadius: 'var(--radius-lg)',
           borderBottomRightRadius: 'var(--radius-lg)',
@@ -239,10 +241,10 @@ function renderDocumentBody(doc, currentPage, pageData, highlightText, activeCod
           fontFamily: 'var(--font-mono)',
           fontSize: '12px',
           lineHeight: '1.55',
-          color: '#e2e8f0',
+          color: 'var(--text-main)',
           overflow: 'auto',
           margin: 0,
-          boxShadow: 'var(--shadow-lg)'
+          boxShadow: 'var(--shadow-sm)'
         }}>
           <code>{codeData.code}</code>
         </pre>

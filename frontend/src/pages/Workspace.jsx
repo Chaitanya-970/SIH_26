@@ -130,7 +130,7 @@ export default function Workspace({
       case 'token':
         setQueryData((prev) => {
           if (!prev) return prev;
-          const tokenStr = typeof data === 'string' ? data : (data.token || data.text || '');
+          const tokenStr = typeof data === 'string' ? data : (data.token || '');
           return { ...prev, answer: prev.answer + tokenStr };
         });
         break;
@@ -198,11 +198,6 @@ export default function Workspace({
         break;
 
       case 'error':
-        setQueryData((prev) => {
-          if (!prev) return prev;
-          const errMsg = data.message || (typeof data === 'string' ? data : 'Unknown error');
-          return { ...prev, answer: prev.answer + `\n\n> [!ERROR]\n> **System Fault:** ${errMsg}` };
-        });
         setIsWorking(false);
         break;
 
