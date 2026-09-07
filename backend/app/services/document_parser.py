@@ -19,12 +19,13 @@ from pathlib import Path
 
 import fitz  # PyMuPDF
 from docx import Document as DocxDocument
+import pandas as pd
 
 # A page with fewer than this many characters of extracted text is
 # treated as likely-scanned and flagged for OCR.
 MIN_TEXT_CHARS_PER_PAGE = 20
 
-SUPPORTED_EXTENSIONS = {".pdf", ".docx", ".txt"}
+SUPPORTED_EXTENSIONS = {".pdf", ".docx", ".txt", ".csv"}
 
 
 class UnsupportedFileTypeError(ValueError):
@@ -89,6 +90,18 @@ def parse_txt(file_path: str | Path) -> list[ExtractedPage]:
     return [ExtractedPage(page_number=1, text=text, needs_ocr=False)]
 
 
+def parse_csv(file_path: str | Path) -> list[ExtractedPage]:
+    """Extract tabular data from a CSV file using pandas."""
+    try:
+        df = pd.read_csv(str(file_path))
+        # Convert to a readable string representation
+        text = df.to_string(index=False)
+        return [ExtractedPage(page_number=1, text=text, needs_ocr=False)]
+    except Exception as e:
+        # Fallback to plain text if pandas fails (e.g. malformed CSV)
+        return parse_txt(file_path)
+
+
 def parse_document(file_path: str | Path) -> list[ExtractedPage]:
     """
     Extract text from a document, dispatching by file type.
@@ -105,6 +118,8 @@ def parse_document(file_path: str | Path) -> list[ExtractedPage]:
         return parse_docx(file_path)
     elif ext == ".txt":
         return parse_txt(file_path)
+    elif ext == ".csv":
+        return parse_csv(file_path)
 
     # detect_file_type already guards this, but keep mypy/readers happy.
     raise UnsupportedFileTypeError(f"No parser implemented for '{ext}'")
