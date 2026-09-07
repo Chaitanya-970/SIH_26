@@ -32,7 +32,13 @@ export async function fetchKnowledgeBase() {
     const res = await fetch(`${BASE_URL}/api/knowledge-base`);
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const data = await res.json();
-    return Array.isArray(data) ? data : (data.documents || []);
+    const docs = Array.isArray(data) ? data : (data.documents || []);
+    return docs.map(d => ({
+      ...d,
+      id: d.doc_id || d.id,
+      name: d.filename || d.name,
+      timestamp: d.uploaded_at || d.timestamp
+    }));
   } catch {
     return [];
   }
@@ -49,11 +55,17 @@ export async function uploadDocument(file) {
     body: formData
   });
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
-  return await res.json();
+  const data = await res.json();
+  return {
+    ...data,
+    id: data.doc_id || data.id,
+    name: data.filename || data.name,
+    timestamp: data.uploaded_at || data.timestamp
+  };
 }
 
 export async function deleteDocument(docId) {
-  const res = await fetch(`${BASE_URL}/api/knowledge-base/${docId}`, {
+  const res = await fetch(`${BASE_URL}/api/documents/${docId}`, {
     method: 'DELETE'
   });
   if (!res.ok) throw new Error(`HTTP ${res.status}`);
