@@ -1,18 +1,10 @@
 {
-  "580fb39789859f7dc29aebe6bdec9666fc8311739a8705fda0916e2907449e17": {
-    "doc_id": "580fb39789859f7dc29aebe6bdec9666fc8311739a8705fda0916e2907449e17",
-    "filename": "test.csv",
+  "d399ee5d7d0a4962aa631dd07b764cdc76ff27d5fddfe36014328245c0d9db43": {
+    "doc_id": "d399ee5d7d0a4962aa631dd07b764cdc76ff27d5fddfe36014328245c0d9db43",
+    "filename": "Pump_Vibration_Data.csv",
     "file_type": ".csv",
-    "chunk_count": 1,
+    "chunk_count": 27,
     "page_count": 1,
-    "uploaded_at": "2026-09-07T10:33:50.816117+00:00"
-  },
-  "57fee2f835ac2a543585d00e6e0a4275918530b4574fa16f60eb10536502dd2e": {
-    "doc_id": "57fee2f835ac2a543585d00e6e0a4275918530b4574fa16f60eb10536502dd2e",
-    "filename": "large.csv",
-    "file_type": ".csv",
-    "chunk_count": 55,
-    "page_count": 1,
-    "uploaded_at": "2026-09-07T10:38:34.138828+00:00"
+    "uploaded_at": "2026-09-07T10:58:04.182189+00:00"
   }
 }

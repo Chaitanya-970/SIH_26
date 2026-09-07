@@ -21,6 +21,7 @@ upsert, so it overwrites rather than duplicating).
 
 from __future__ import annotations
 
+import asyncio
 import hashlib
 from dataclasses import dataclass
 from pathlib import Path
@@ -94,7 +95,7 @@ async def ingest_document(file_path: str | Path, source_filename: str | None = N
     doc_id = compute_doc_id(file_path)
 
     try:
-        pages = parse_document(file_path)
+        pages = await asyncio.to_thread(parse_document, file_path)
     except Exception as e:
         raise IngestionError(f"Failed to parse '{source_filename}': {e}") from e
 
@@ -122,7 +123,7 @@ async def ingest_document(file_path: str | Path, source_filename: str | None = N
             # it rather than storing empty chunks.
             continue
 
-        page_chunks = chunk_text(text)
+        page_chunks = await asyncio.to_thread(chunk_text, text)
 
         for chunk in page_chunks:
             chunk_id = f"{doc_id}_{page.page_number}_{chunk.chunk_index}"
