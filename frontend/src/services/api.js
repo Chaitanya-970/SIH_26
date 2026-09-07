@@ -31,7 +31,8 @@ export async function fetchKnowledgeBase() {
   try {
     const res = await fetch(`${BASE_URL}/api/knowledge-base`);
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    return await res.json();
+    const data = await res.json();
+    return Array.isArray(data) ? data : (data.documents || []);
   } catch {
     return [];
   }
