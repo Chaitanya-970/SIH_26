@@ -3,7 +3,22 @@ import ModelSelector from '../components/ModelSelector';
 import MarkdownRenderer from '../components/MarkdownRenderer';
 import DitherProgress from '../components/DitherProgress';
 import { streamChat } from '../services/sseClient';
-import { DEMO_PRESETS } from '../services/mockData';
+const DEMO_PRESETS = [
+  {
+    id: 'demo-1',
+    title: 'Analyze Inspection Report',
+    tag: 'RAG',
+    modelKey: 'phi3.5:3.8b',
+    prompt: 'Analyze the Ultrasonic Inspection Report for Column C-101. What is the highest corrosion rate?'
+  },
+  {
+    id: 'demo-2',
+    title: 'Draft Approval Note',
+    tag: 'DRAFTER',
+    modelKey: 'phi3.5:3.8b',
+    prompt: 'Draft an Executive Turnaround Approval Note based on the C-101 corrosion findings.'
+  }
+];
 import {
   Send,
   Paperclip,
